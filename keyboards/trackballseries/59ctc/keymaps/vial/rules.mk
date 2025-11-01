@@ -1,6 +1,6 @@
 VIA_ENABLE = yes
 VIAL_ENABLE = yes
-VIALRGB_ENABLE = yes
+VIALRGB_ENABLE = no
 VIAL_INSECURE = yes
 
 OLED_ENABLE         = yes

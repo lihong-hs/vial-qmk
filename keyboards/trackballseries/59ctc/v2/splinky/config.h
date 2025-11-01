@@ -48,20 +48,23 @@
 
 #define TAP_CODE_DELAY 10
 
-#ifdef OLED_ENABLE
 /* 使用 QMK 提供的分割传输时，确保当前层状态在从站上可用。 */
 #define SPLIT_LAYER_STATE_ENABLE
 /* 确保使用 QMK 提供的拆分传输时，当前主机指示器状态 (caps/num/scroll) 在从属设备上可用 */
 #define SPLIT_LED_STATE_ENABLE
 /* 使用 QMK 提供的分割传输时，确保当前修改器状态（正常、弱和单次）在从属设备上可用 */
 #define SPLIT_MODS_ENABLE
+
+#ifdef OLED_ENABLE
 /* 同步两半之间 OLED 的开/关状态。 */
 #define SPLIT_OLED_ENABLE
 /* 使用 QMK 提供的分割传输时，确保当前 WPM 在从属设备上可用 */
-#define SPLIT_WPM_ENABLE
+// #define SPLIT_WPM_ENABLE
 #define OLED_FONT_H "keyboards/trackballseries/59ctc/keymaps/vial/glcdfont.c"
-#define OLED_TIMEOUT 50000
+#define OLED_TIMEOUT 5000
 #endif
+
+#define SPLIT_TRANSACTION_IDS_USER RPC_DATA_SYNC
 
 //解决从机休眠后无法唤醒问题
 //#define FORCED_SYNC_THROTTLE_MS 100

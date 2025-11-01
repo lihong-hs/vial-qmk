@@ -33,13 +33,9 @@ enum charybdis_keycodes {
     DRAGSCROLL_MODE_TOGGLE,
     POINTER_DRAGSCROLL_DPI_FORWARD,
     POINTER_DRAGSCROLL_DPI_REVERSE,
-    AUTO_MODE_TOGGLE,
-    AUTO_TIME_50,
-    AUTO_TIME_50R,
-    AUTO_TIME_100,
-    AUTO_THRESHOLD,
-    TInfo,
-    T_SAVE,
+    OLED_TOGGLE,
+    OLED_INFO_TOGGLE,
+    BACKLIGHT_TOGGLE,
 };
 
 #define DPI_MOD POINTER_DEFAULT_DPI_FORWARD
@@ -52,13 +48,9 @@ enum charybdis_keycodes {
 #define DRG_TOG DRAGSCROLL_MODE_TOGGLE
 #define DRG_MOD POINTER_DRAGSCROLL_DPI_FORWARD
 #define DRG_RMOD POINTER_DRAGSCROLL_DPI_REVERSE
-#define AUTO_TOG AUTO_MODE_TOGGLE
-#define AUTO_TIME_50 AUTO_TIME_50
-#define AUTO_TIME_50R AUTO_TIME_50R
-#define AUTO_TIME_100 AUTO_TIME_100
-#define AUTO_THRESHOLD AUTO_THRESHOLD
-#define TInfo TInfo
-#define T_SAVE T_SAVE
+#define OLED_TOG OLED_TOGGLE
+#define OLED_INFO_TOG OLED_INFO_TOGGLE
+#define BACKLIGHT_TOG BACKLIGHT_TOGGLE
 #endif // !NO_CHARYBDIS_KEYCOD
 /** \brief Return the current DPI value for the pointer's default mode. */
 uint16_t charybdis_get_pointer_default_dpi(void);
