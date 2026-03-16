@@ -15,13 +15,13 @@
 #        define CHARYBDIS_MINIMUM_DEFAULT_DPI 300
 #    endif // CHARYBDIS_MINIMUM_DEFAULT_DPI
 
-#    ifndef CHARYBDIS_MINIMUM_ACCEL_FACTOR
-#        define CHARYBDIS_MINIMUM_ACCEL_FACTOR 0.00f
+#    ifndef CHARYBDIS_BASE_ACCEL_SENSITIVITY
+#        define CHARYBDIS_BASE_ACCEL_SENSITIVITY 0.00f
 #    endif
 
-#    ifndef CHARYBDIS_ACCEL_FACTOR_STEP_SIZE
-#        define CHARYBDIS_ACCEL_FACTOR_STEP_SIZE 0.05f
-#    endif
+#    ifndef CHARYBDIS_ACCEL_SENSITIVITY_STEP_SIZE
+#        define CHARYBDIS_ACCEL_SENSITIVITY_STEP_SIZE 0.05f
+#    endif // Each level adds 5% speed
 
 #    ifndef CHARYBDIS_DEFAULT_DPI_CONFIG_STEP
 #        define CHARYBDIS_DEFAULT_DPI_CONFIG_STEP 50
@@ -87,8 +87,8 @@ static uint16_t get_pointer_sniping_dpi(charybdis_config_t* config) {
 }
 
 /** \brief Return the current acceleration factor as a float. */
-static float get_pointer_accel_factor(charybdis_config_t config) {
-    return (float)config.pointer_accel_factor_index * CHARYBDIS_ACCEL_FACTOR_STEP_SIZE + CHARYBDIS_MINIMUM_ACCEL_FACTOR;
+static float get_pointer_accel_sensitivity(charybdis_config_t config) {
+    return (float)config.pointer_accel_factor_index * CHARYBDIS_ACCEL_SENSITIVITY_STEP_SIZE + CHARYBDIS_BASE_ACCEL_SENSITIVITY;
 }
 
 /** \brief Step the acceleration factor index up or down. */
@@ -184,32 +184,66 @@ void charybdis_cycle_pointer_sniping_dpi_noeeprom(bool forward) {
 
 
 // --- Acceleration Configuration ---
-// Adjust these to match your MX Ergo feel
-#define ACCEL_THRESHOLD 1.0f     // Min speed to start accelerating (prevents jitter)
-#define ACCEL_MAX_DELTA 127      // Max HID report value to prevent overflow
+// The minimum speed (counts/ms) required before acceleration kicks in.
+// Prevents jitter when making tiny, precise movements.
+#define VELOCITY_THRESHOLD 1.0f
+// The maximum HID report value allowed. Prevents cursor from flying off-screen.
+#define MAX_REPORT_VALUE 127
 
 // --- State Tracking ---
-static uint32_t last_timer = 0;
+static uint32_t last_movement_timer = 0;
 
 // --- Acceleration Logic ---
-static int16_t apply_accel(int16_t delta, uint16_t time_diff, float accel_factor) {
-    if (time_diff == 0 || delta == 0) {
-        return delta;
+/**
+ * \brief Calculates the speed multiplier based on how fast the trackball is moved.
+ * 
+ * \param velocity      The speed of movement (counts per millisecond).
+ * \param sensitivity   The configuration slope (how aggressively speed increases).
+ * \return              A multiplier (1.0 = normal speed, 2.0 = double speed).
+ */
+static float calculate_velocity_multiplier(float velocity, float sensitivity) {
+    // If moving slower than threshold, no acceleration (1.0x speed)
+    if (velocity <= VELOCITY_THRESHOLD) {
+        return 1.0f;
     }
 
-    float velocity = (float)abs(delta) / (float)time_diff;
-    float multiplier = 1.0f;
+    // Calculate how much faster than the threshold we are moving
+    float excess_velocity = velocity - VELOCITY_THRESHOLD;
 
-    if (velocity > ACCEL_THRESHOLD) {
-        multiplier = 1.0f + ((velocity - ACCEL_THRESHOLD) * accel_factor);
+    // Apply the sensitivity curve
+    // Formula: Base Speed + (Excess Speed * Sensitivity)
+    float multiplier = 1.0f + (excess_velocity * sensitivity);
+
+    return multiplier;
+}
+
+/**
+ * \brief Applies acceleration to a single axis based on time elapsed.
+ */
+static int16_t apply_velocity_accel(int16_t movement_delta, uint16_t time_elapsed_ms, float sensitivity) {
+    // Safety: Avoid division by zero if timer hasn't updated
+    if (time_elapsed_ms == 0 || movement_delta == 0) {
+        return movement_delta;
     }
 
-    float new_delta = (float)delta * multiplier;
+    // 1. Calculate Velocity (Distance / Time)
+    // We use abs() because direction doesn't matter for speed calculation
+    float velocity = (float)abs(movement_delta) / (float)time_elapsed_ms;
 
-    if (new_delta > ACCEL_MAX_DELTA) new_delta = ACCEL_MAX_DELTA;
-    if (new_delta < -ACCEL_MAX_DELTA) new_delta = -ACCEL_MAX_DELTA;
+    // 2. Get the Speed Multiplier based on Velocity
+    float multiplier = calculate_velocity_multiplier(velocity, sensitivity);
 
-    return (int16_t)new_delta;
+    // 3. Apply Multiplier to the original movement
+    float accelerated_delta = (float)movement_delta * multiplier;
+
+    // 4. Clamp value to prevent HID report overflow (max 127 per report)
+    if (accelerated_delta > MAX_REPORT_VALUE) {
+        accelerated_delta = MAX_REPORT_VALUE;
+    } else if (accelerated_delta < -MAX_REPORT_VALUE) {
+        accelerated_delta = -MAX_REPORT_VALUE;
+    }
+
+    return (int16_t)accelerated_delta;
 }
 
 /**
@@ -245,23 +279,28 @@ static void pointing_device_task_charybdis(report_mouse_t* mouse_report) {
     }
 }
 
-// --- QMK Hook ---
-// This function is automatically called by
+//
 report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
-    uint32_t current_timer = timer_elapsed32(last_timer);
+    // Calculate time since last movement
+    uint32_t current_timer = timer_elapsed32(last_movement_timer);
 
+    // Safety: If keyboard was idle for >1 second, reset timer to avoid huge velocity spikes
+    // We assume a standard USB poll rate ~16ms (60Hz) as a baseline minimum
     if (current_timer > 1000) {
-        current_timer = 16;
+        current_timer = 16; 
     }
 
+    // Only process acceleration if there is actual movement
     if (mouse_report.x != 0 || mouse_report.y != 0) {
-        last_timer = timer_read32();
+        // Update timer for next cycle
+        last_movement_timer = timer_read32();
 
-        // Read factor from persisted config
-        float accel_factor = get_pointer_accel_factor(g_charybdis_config);
+        // Get sensitivity from config (Index 0-31 * Step Size 0.05)
+        float sensitivity = get_pointer_accel_sensitivity(g_charybdis_config);
 
-        mouse_report.x = apply_accel(mouse_report.x, current_timer, accel_factor);
-        mouse_report.y = apply_accel(mouse_report.y, current_timer, accel_factor);
+        // Apply acceleration to both X and Y axes
+        mouse_report.x = apply_velocity_accel(mouse_report.x, current_timer, sensitivity);
+        mouse_report.y = apply_velocity_accel(mouse_report.y, current_timer, sensitivity);
     }
 
     return mouse_report;
@@ -332,14 +371,14 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
                 charybdis_cycle_pointer_default_dpi(/* forward= */ has_shift_mod());
             }
             break;
-        case POINTER_ACCEL_FACTOR_FORWARD:
+        case POINTER_ACCEL_SENSITIVITY_FORWARD:
             if (record->event.pressed) {
                 // Shift reverses direction (consistent with DPI keys)
                 step_pointer_accel_factor(&g_charybdis_config, !has_shift_mod());
                 write_charybdis_config_to_eeprom(&g_charybdis_config);
             }
             break;
-        case POINTER_ACCEL_FACTOR_REVERSE:
+        case POINTER_ACCEL_SENSITIVITY_REVERSE:
             if (record->event.pressed) {
                 step_pointer_accel_factor(&g_charybdis_config, has_shift_mod());
                 write_charybdis_config_to_eeprom(&g_charybdis_config);
@@ -509,12 +548,12 @@ void trackball_oled_default(void) {
     oled_write_ln(count_default_str, false);
 }
 void trackball_oled_info(void) {
-    float accel_factor = get_pointer_accel_factor(g_charybdis_config);
-    uint8_t whole = (uint8_t)accel_factor;
-    uint8_t fractional = (uint8_t)((accel_factor - whole) * 100);
+    float accel_sensitivity = get_pointer_accel_sensitivity(g_charybdis_config);
+    uint8_t whole = (uint8_t)accel_sensitivity;
+    uint8_t fractional = (uint8_t)((accel_sensitivity - whole) * 100);
     char accel_str[8];
     snprintf(accel_str, sizeof(accel_str), "%d.%02d", whole, fractional);
-    oled_write_P(PSTR(" ACC-F :"), false);
+    oled_write_P(PSTR(" ACC-S :"), false);
     oled_write_ln(accel_str, false);
 
     char is_sniping_str[2];
