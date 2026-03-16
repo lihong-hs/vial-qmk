@@ -18,7 +18,7 @@
 
 #ifdef VIA_ENABLE
 /* VIA configuration. */
-#define DYNAMIC_KEYMAP_LAYER_COUNT 10
+#define DYNAMIC_KEYMAP_LAYER_COUNT 16
 #define DYNAMIC_KEYMAP_MACRO_COUNT 32
 #ifdef VIAL_ENABLE
 /** Vial-specific configuration. */

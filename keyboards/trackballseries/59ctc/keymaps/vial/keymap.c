@@ -15,11 +15,6 @@ enum charybdis_keymap_layers {
     LAYER_SETTINGS,
 };
 
-// #define LOWER MO(LAYER_LOWER)
-// #define RAISE MO(LAYER_RAISE)
-// #define PT_Z LT(LAYER_POINTER, KC_Z)
-// #define PT_SLSH LT(LAYER_POINTER, KC_SLSH)
-
 #ifndef POINTING_DEVICE_ENABLE
 #    define DRGSCRL KC_NO
 #    define DPI_MOD KC_NO
@@ -61,18 +56,18 @@ void eeconfig_init_user(void) {
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [LAYER_BASE] = LAYOUT(
-  // ╭──────────────────────────────────────────────────────╮               ╭──────────────────────────────────────────────────────╮
-        KC_ESC,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                     KC_6,    KC_7,    KC_8,    KC_9,    KC_0, KC_MINS,
-  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
-        KC_TAB,    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                     KC_Y,    KC_U,    KC_I,    KC_O,    KC_P, KC_BSLS,
-  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
-       KC_LSFT,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                     KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
-  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
-       KC_LCTL,    KC_SPC,    KC_X,    KC_C,    KC_V,    KC_B,   KC_B,  KC_N,      KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SPC, KC_RSFT,
-  // ╰──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────╯
-       KC_LGUI,   KC_SPC,   XXXXXXX,   KC_LALT,                                                                      KC_RALT, KC_PSCR,
-                                             KC_LALT, KC_BSPC, KC_LALT,          KC_SPC,  KC_DEL
-  //                            ╰───────────────────────────╯               ╰──────────────────╯
+  // ╭──────────────────────────────────────────────────────╮                                            ╭──────────────────────────────────────────────────────╮
+       LT(9,KC_ESCAPE),  KC_1,  KC_2,  KC_3,   KC_4,  KC_5,                                                KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    TG(2),
+  // ├──────────────────────────────────────────────────────┤                                            ├──────────────────────────────────────────────────────┤
+       LSG_T(KC_GRAVE),  KC_Q, LT(7,KC_W),  LT(6,KC_F), LT(8,KC_P),  KC_B,                                 KC_J,  LT(5,KC_L),  LT(6,KC_U), LT(7,KC_Y),  KC_SEMICOLON, KC_MINUS,
+  // ├──────────────────────────────────────────────────────┤                                            ├──────────────────────────────────────────────────────┤
+       LSG_T(KC_TAB), LALT_T(KC_A), LGUI_T(KC_R), LSFT_T(KC_S), LCTL_T(KC_T), LT(2,KC_G),                  KC_M,  LCTL_T(KC_N),  LSFT_T(KC_E),  LGUI_T(KC_I), LALT_T(KC_O), KC_QUOT,
+  // ├──────────────────────────────────────────────────────┤                                            ├──────────────────────────────────────────────────────┤
+       KC_NO,    KC_Z,    KC_X,    KC_C,    KC_D,    KC_V,    OLED_TOG,                   BACKLIGHT_TOG,   KC_K,  KC_H, KC_COMM,  KC_DOT, KC_SLASH, KC_BACKSLASH,
+  // ╰──────────────────────────────────────────────────────┤                                            ├──────────────────────────────────────────────────────╯
+       KC_NO,   KC_NO,   LT(7,KC_DELETE),   LT(5,KC_BSPC),
+                                LCTL_T(KC_SPACE), LGUI_T(KC_ENTER), KC_DELETE,                   LT(6,KC_ENTER),  LT(7,KC_BSPC),        KC_LEFT_BRACKET, KC_RIGHT_BRACKET
+  //                                    ╰───────────────────────────╯                               ╰──────────────────╯                     ╰──────────────────╯
   ),
   [LAYER_QWERTY] = LAYOUT(
   // ╭──────────────────────────────────────────────────────╮                   ╭──────────────────────────────────────────────────────╮
@@ -91,22 +86,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [LAYER_MOUSE] = LAYOUT(
   // ╭──────────────────────────────────────────────────────╮               ╭──────────────────────────────────────────────────────╮
-        KC_F12,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                    KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10,  KC_F11,
+       _______, _______, _______, _______, _______, _______,                  TG(3),   KC_HOME,   KC_PGUP,   KC_PGDN,  KC_END,  TG(2),
   // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
-       KC_MNXT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLU,
+       _______, _______, _______, _______, _______, _______,                  KC_LEFT, KC_DOWN, KC_UP, KC_RIGHT, XXXXXXX, XXXXXXX,
   // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
-       KC_MPLY, KC_LEFT,   KC_UP, KC_DOWN, KC_RGHT, XXXXXXX,                  XXXXXXX, KC_RSFT, KC_RCTL, KC_RALT, KC_RGUI, KC_MUTE,
+       _______, _______, _______, _______, _______, _______,                  KC_WBAK, KC_BTN1, KC_BTN2, DRG_TOG, KC_BTN3, SNP_TOG,
   // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
-       KC_MPRV, KC_HOME, KC_PGUP, KC_PGDN,  KC_END, XXXXXXX,   KC_B,   KC_N,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLD,
+       _______, _______, _______, _______, _______, _______,   KC_B,   KC_N,  KC_WFWD, LCTL(KC_C), LCTL(KC_V), SNIPING, LCTL(KC_X), DRG_TOG,
   // ╰──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────╯
-      KC_LGUI,   KC_SPC,   XXXXXXX,   KC_LALT,                                                                      KC_SPC, KC_LALT,
-                                            KC_LALT, KC_BSPC, KC_LALT,        KC_SPC, KC_DEL
+      _______, _______, _______, _______,                                                                      _______, _______,
+                                            _______, _______, _______,        _______, _______
  //                            ╰───────────────────────────╯               ╰──────────────────╯
   ),
 
   [LAYER_MOUSE_QWERTY] = LAYOUT(
   // ╭──────────────────────────────────────────────────────╮               ╭──────────────────────────────────────────────────────╮
-       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  TG(3), XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, DPI_MOD, S_D_MOD,                  S_D_MOD, DPI_MOD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
@@ -198,13 +193,106 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
        XXXXXXX, _______, DRGSCRL, SNIPING, KC_B, KC_B,   KC_B,   KC_N,  KC_B, KC_B, SNIPING, DRGSCRL, _______, XXXXXXX,
   // ╰──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────╯
-      KC_LGUI,   KC_SPC,   XXXXXXX,   KC_LALT,                                                                      KC_SPC, KC_LALT,
-                                            KC_LALT, KC_BSPC, KC_LALT,        KC_BTN1, KC_BTN2
+      KC_LGUI,   KC_SPC,   XXXXXXX,   KC_LALT,
+                                            KC_LALT, KC_BSPC, KC_LALT,        KC_SPC, KC_LALT,                     KC_BTN1, KC_BTN2
+ //                            ╰───────────────────────────╯               ╰──────────────────╯
+  ),
+  [10] = LAYOUT(
+  // ╭──────────────────────────────────────────────────────╮               ╭──────────────────────────────────────────────────────╮
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ╰──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────╯
+      XXXXXXX,   XXXXXXX,   XXXXXXX,   XXXXXXX,
+                                            XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX
+ //                            ╰───────────────────────────╯               ╰──────────────────╯
+  ),
+  [11] = LAYOUT(
+  // ╭──────────────────────────────────────────────────────╮               ╭──────────────────────────────────────────────────────╮
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ╰──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────╯
+      XXXXXXX,   XXXXXXX,   XXXXXXX,   XXXXXXX,
+                                            XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX
+ //                            ╰───────────────────────────╯               ╰──────────────────╯
+  ),
+  [12] = LAYOUT(
+  // ╭──────────────────────────────────────────────────────╮               ╭──────────────────────────────────────────────────────╮
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ╰──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────╯
+      XXXXXXX,   XXXXXXX,   XXXXXXX,   XXXXXXX,
+                                            XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX
+ //                            ╰───────────────────────────╯               ╰──────────────────╯
+  ),
+  [13] = LAYOUT(
+  // ╭──────────────────────────────────────────────────────╮               ╭──────────────────────────────────────────────────────╮
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ╰──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────╯
+      XXXXXXX,   XXXXXXX,   XXXXXXX,   XXXXXXX,
+                                            XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX
+ //                            ╰───────────────────────────╯               ╰──────────────────╯
+  ),
+  [14] = LAYOUT(
+  // ╭──────────────────────────────────────────────────────╮               ╭──────────────────────────────────────────────────────╮
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ╰──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────╯
+      XXXXXXX,   XXXXXXX,   XXXXXXX,   XXXXXXX,
+                                            XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX
+ //                            ╰───────────────────────────╯               ╰──────────────────╯
+  ),
+  [15] = LAYOUT(
+  // ╭──────────────────────────────────────────────────────╮               ╭──────────────────────────────────────────────────────╮
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
+       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  // ╰──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────╯
+      XXXXXXX,   XXXXXXX,   XXXXXXX,   XXXXXXX,
+                                            XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX
  //                            ╰───────────────────────────╯               ╰──────────────────╯
   ),
 };
 
 // clang-format on
+//
+
+#ifdef COMBO_MUST_TAP_PER_COMBO
+bool get_combo_must_tap(uint16_t combo_index, combo_t *combo) {
+    // All combos is tap-only
+    return true;
+}
+#endif
+
 // 用来检测自动切换鼠标层的地方，如果鼠标的水平位移x或垂直位移y的绝对值大于设定的阈值
 // 自动切换到LAYER_POINTER鼠标层，并将rgb改为绿色
 // 如果没有开启这个不起作用
@@ -252,23 +340,41 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             lightMode = HIGHLIGHT_DEFAULT;
             break;
         case LAYER_MOUSE:
-            lightMode               = HIGHLIGHT_PER_INDEX;
-            hsv_highlight           = (hsv_t){HSV_SPRINGGREEN};
+            lightMode     = HIGHLIGHT_PER_INDEX;
+            hsv_highlight = (hsv_t){HSV_SPRINGGREEN};
+            if (user_config.is_backlight_enabled) {
+                hsv_base = (hsv_t){HSV_SPRINGGREEN};
+            }
+            if (charybdis_get_pointer_sniping_enabled()) {
+                hsv_highlight = (hsv_t){HSV_PINK};
+            }
+            if (charybdis_get_pointer_dragscroll_enabled()) {
+                hsv_highlight = (hsv_t){HSV_GOLD};
+            }
             int highlightIndexes2[] = {55};
             highlightIndexesSize    = 1;
             memcpy(highlightIndexes, highlightIndexes2, highlightIndexesSize * sizeof(int));
             break;
         case LAYER_MOUSE_QWERTY:
-            lightMode               = HIGHLIGHT_PER_INDEX;
-            hsv_highlight           = (hsv_t){HSV_SPRINGGREEN};
-            int highlightIndexes3[] = {54};
-            highlightIndexesSize    = 1;
+            lightMode     = HIGHLIGHT_PER_INDEX;
+            hsv_highlight = (hsv_t){HSV_CHARTREUSE};
+            if (user_config.is_backlight_enabled) {
+                hsv_base = (hsv_t){HSV_CHARTREUSE};
+            }
+            if (charybdis_get_pointer_sniping_enabled()) {
+                hsv_highlight = (hsv_t){HSV_PINK};
+            }
+            if (charybdis_get_pointer_dragscroll_enabled()) {
+                hsv_highlight = (hsv_t){HSV_GOLD};
+            }
+            int highlightIndexes3[] = {31, 55};
+            highlightIndexesSize    = 2;
             memcpy(highlightIndexes, highlightIndexes3, highlightIndexesSize * sizeof(int));
             break;
         case LAYER_NUMROW:
             lightMode               = HIGHLIGHT_PER_INDEX;
             hsv_base                = (hsv_t){HSV_OFF};
-            hsv_highlight           = (hsv_t){HSV_GOLD};
+            hsv_highlight           = (hsv_t){HSV_CORAL};
             int highlightIndexes4[] = {7, 12, 17, 22, 27, 39, 44, 47, 52, 57};
             highlightIndexesSize    = 10;
             memcpy(highlightIndexes, highlightIndexes4, highlightIndexesSize * sizeof(int));
@@ -276,7 +382,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         case LAYER_F_KEYS:
             lightMode               = HIGHLIGHT_PER_INDEX;
             hsv_base                = (hsv_t){HSV_OFF};
-            hsv_highlight           = (hsv_t){HSV_RED};
+            hsv_highlight           = (hsv_t){HSV_ORANGE};
             int highlightIndexes5[] = {7, 27, 39, 57, 43, 48};
             highlightIndexesSize    = 6;
             memcpy(highlightIndexes, highlightIndexes5, highlightIndexesSize * sizeof(int));
@@ -293,8 +399,8 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             lightMode               = HIGHLIGHT_PER_INDEX;
             hsv_base                = (hsv_t){HSV_OFF};
             hsv_highlight           = (hsv_t){HSV_MAGENTA};
-            int highlightIndexes7[] = {43, 48, 51, 44, 47, 52, 45, 46, 53, 56};
-            highlightIndexesSize    = 10;
+            int highlightIndexes7[] = {43, 48, 51, 44, 47, 52, 45, 46, 53};
+            highlightIndexesSize    = 9;
             memcpy(highlightIndexes, highlightIndexes7, highlightIndexesSize * sizeof(int));
             break;
         case LAYER_NAV:
@@ -308,7 +414,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         case LAYER_SETTINGS:
             lightMode     = HIGHLIGHT_WHERE_THERE_ARE_KEYS;
             hsv_base      = (hsv_t){HSV_OFF};
-            hsv_highlight = (hsv_t){HSV_SPRINGGREEN};
+            hsv_highlight = (hsv_t){HSV_RED};
             break;
         default:
             break;
@@ -443,141 +549,7 @@ void render_space(void) {
 }
 
 void render_logo(void) {
-    oled_write_P(PSTR("Key  "), false);
-    oled_write_P(PSTR("ball "), false);
-    oled_write_P(PSTR("59   "), false);
-}
-
-void render_mod_status_gui_alt(uint8_t modifiers) {
-    static const char PROGMEM gui_off_1[] = {0x85, 0x86, 0};
-    static const char PROGMEM gui_off_2[] = {0xa5, 0xa6, 0};
-    static const char PROGMEM gui_on_1[]  = {0x8d, 0x8e, 0};
-    static const char PROGMEM gui_on_2[]  = {0xad, 0xae, 0};
-
-    static const char PROGMEM alt_off_1[] = {0x87, 0x88, 0};
-    static const char PROGMEM alt_off_2[] = {0xa7, 0xa8, 0};
-    static const char PROGMEM alt_on_1[]  = {0x8f, 0x90, 0};
-    static const char PROGMEM alt_on_2[]  = {0xaf, 0xb0, 0};
-
-    // fillers between the modifier icons bleed into the icon frames
-    static const char PROGMEM off_off_1[] = {0xc5, 0};
-    static const char PROGMEM off_off_2[] = {0xc6, 0};
-    static const char PROGMEM on_off_1[]  = {0xc7, 0};
-    static const char PROGMEM on_off_2[]  = {0xc8, 0};
-    static const char PROGMEM off_on_1[]  = {0xc9, 0};
-    static const char PROGMEM off_on_2[]  = {0xca, 0};
-    static const char PROGMEM on_on_1[]   = {0xcb, 0};
-    static const char PROGMEM on_on_2[]   = {0xcc, 0};
-
-    if (modifiers & MOD_MASK_GUI) {
-        oled_write_P(gui_on_1, false);
-    } else {
-        oled_write_P(gui_off_1, false);
-    }
-
-    if ((modifiers & MOD_MASK_GUI) && (modifiers & MOD_MASK_ALT)) {
-        oled_write_P(on_on_1, false);
-    } else if (modifiers & MOD_MASK_GUI) {
-        oled_write_P(on_off_1, false);
-    } else if (modifiers & MOD_MASK_ALT) {
-        oled_write_P(off_on_1, false);
-    } else {
-        oled_write_P(off_off_1, false);
-    }
-
-    if (modifiers & MOD_MASK_ALT) {
-        oled_write_P(alt_on_1, false);
-    } else {
-        oled_write_P(alt_off_1, false);
-    }
-
-    if (modifiers & MOD_MASK_GUI) {
-        oled_write_P(gui_on_2, false);
-    } else {
-        oled_write_P(gui_off_2, false);
-    }
-
-    if (modifiers & MOD_MASK_GUI & MOD_MASK_ALT) {
-        oled_write_P(on_on_2, false);
-    } else if (modifiers & MOD_MASK_GUI) {
-        oled_write_P(on_off_2, false);
-    } else if (modifiers & MOD_MASK_ALT) {
-        oled_write_P(off_on_2, false);
-    } else {
-        oled_write_P(off_off_2, false);
-    }
-
-    if (modifiers & MOD_MASK_ALT) {
-        oled_write_P(alt_on_2, false);
-    } else {
-        oled_write_P(alt_off_2, false);
-    }
-}
-
-void render_mod_status_ctrl_shift(uint8_t modifiers) {
-    static const char PROGMEM ctrl_off_1[] = {0x89, 0x8a, 0};
-    static const char PROGMEM ctrl_off_2[] = {0xa9, 0xaa, 0};
-    static const char PROGMEM ctrl_on_1[]  = {0x91, 0x92, 0};
-    static const char PROGMEM ctrl_on_2[]  = {0xb1, 0xb2, 0};
-
-    static const char PROGMEM shift_off_1[] = {0x8b, 0x8c, 0};
-    static const char PROGMEM shift_off_2[] = {0xab, 0xac, 0};
-    static const char PROGMEM shift_on_1[]  = {0xcd, 0xce, 0};
-    static const char PROGMEM shift_on_2[]  = {0xcf, 0xd0, 0};
-
-    // fillers between the modifier icons bleed into the icon frames
-    static const char PROGMEM off_off_1[] = {0xc5, 0};
-    static const char PROGMEM off_off_2[] = {0xc6, 0};
-    static const char PROGMEM on_off_1[]  = {0xc7, 0};
-    static const char PROGMEM on_off_2[]  = {0xc8, 0};
-    static const char PROGMEM off_on_1[]  = {0xc9, 0};
-    static const char PROGMEM off_on_2[]  = {0xca, 0};
-    static const char PROGMEM on_on_1[]   = {0xcb, 0};
-    static const char PROGMEM on_on_2[]   = {0xcc, 0};
-
-    if (modifiers & MOD_MASK_CTRL) {
-        oled_write_P(ctrl_on_1, false);
-    } else {
-        oled_write_P(ctrl_off_1, false);
-    }
-
-    if ((modifiers & MOD_MASK_CTRL) && (modifiers & MOD_MASK_SHIFT)) {
-        oled_write_P(on_on_1, false);
-    } else if (modifiers & MOD_MASK_CTRL) {
-        oled_write_P(on_off_1, false);
-    } else if (modifiers & MOD_MASK_SHIFT) {
-        oled_write_P(off_on_1, false);
-    } else {
-        oled_write_P(off_off_1, false);
-    }
-
-    if (modifiers & MOD_MASK_SHIFT) {
-        oled_write_P(shift_on_1, false);
-    } else {
-        oled_write_P(shift_off_1, false);
-    }
-
-    if (modifiers & MOD_MASK_CTRL) {
-        oled_write_P(ctrl_on_2, false);
-    } else {
-        oled_write_P(ctrl_off_2, false);
-    }
-
-    if (modifiers & MOD_MASK_CTRL & MOD_MASK_SHIFT) {
-        oled_write_P(on_on_2, false);
-    } else if (modifiers & MOD_MASK_CTRL) {
-        oled_write_P(on_off_2, false);
-    } else if (modifiers & MOD_MASK_SHIFT) {
-        oled_write_P(off_on_2, false);
-    } else {
-        oled_write_P(off_off_2, false);
-    }
-
-    if (modifiers & MOD_MASK_SHIFT) {
-        oled_write_P(shift_on_2, false);
-    } else {
-        oled_write_P(shift_off_2, false);
-    }
+    oled_write_P(PSTR("KBL59"), false);
 }
 
 // 从设备
@@ -592,16 +564,15 @@ static void slave_data(void) {
     }
 #    endif
 
+    render_space();
     render_logo();
-    oled_set_cursor(0, 4);
-
-    render_mod_status_gui_alt(get_mods());
-    render_mod_status_ctrl_shift(get_mods());
+    // oled_set_cursor(0, 4);
 
     render_space();
 
+    uint8_t layer = get_highest_layer(layer_state);
     /* Print current layer */
-    switch (get_highest_layer(layer_state)) {
+    switch (layer) {
         case LAYER_BASE:
             oled_write("  0  ", false);
             render_space();
@@ -652,8 +623,40 @@ static void slave_data(void) {
             render_space();
             oled_write_ln("Prefs", false);
             break;
+        case 10:
+            oled_write(" 10  ", false);
+            render_space();
+            render_space();
+            break;
+        case 11:
+            oled_write(" 11  ", false);
+            render_space();
+            render_space();
+            break;
+        case 12:
+            oled_write(" 12  ", false);
+            render_space();
+            render_space();
+            break;
+        case 13:
+            oled_write(" 13  ", false);
+            render_space();
+            render_space();
+            break;
+        case 14:
+            oled_write(" 14  ", false);
+            render_space();
+            render_space();
+            break;
+        case 15:
+            oled_write(" 15  ", false);
+            render_space();
+            render_space();
+            break;
         default:
             oled_write("Undef", false);
+            render_space();
+            render_space();
     }
 }
 
@@ -750,4 +753,10 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
     [7] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
     [8] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
     [9] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
+    [10] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
+    [11] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
+    [12] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
+    [13] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
+    [14] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
+    [15] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
 };
