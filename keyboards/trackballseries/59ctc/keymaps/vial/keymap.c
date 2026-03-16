@@ -1,6 +1,9 @@
 
 #include QMK_KEYBOARD_H
 #include "transactions.h"
+#include "pointing_device.h"
+#include "timer.h"
+#include <stdlib.h>
 
 enum charybdis_keymap_layers {
     LAYER_BASE = 0,
@@ -300,6 +303,66 @@ bool get_combo_must_tap(uint16_t combo_index, combo_t *combo) {
 
 #endif // POINTING_DEVICE_ENABLE
 
+
+// --- Acceleration Configuration ---
+// Adjust these to match your MX Ergo feel
+#define ACCEL_FACTOR 0.4f       // How much speed increases (0.0 = flat, 0.4 = very fast)
+#define ACCEL_THRESHOLD 1.0f     // Min speed to start accelerating (prevents jitter)
+#define ACCEL_MAX_DELTA 127      // Max HID report value to prevent overflow
+
+// --- State Tracking ---
+static uint32_t last_timer = 0;
+
+// --- Acceleration Logic ---
+static int16_t apply_accel(int16_t delta, uint16_t time_diff) {
+    if (time_diff == 0 || delta == 0) {
+        return delta;
+    }
+
+    // Calculate velocity (distance / time)
+    float velocity = (float)abs(delta) / (float)time_diff;
+    float multiplier = 1.0f;
+
+    // Apply curve if velocity exceeds threshold
+    if (velocity > ACCEL_THRESHOLD) {
+        multiplier = 1.0f + ((velocity - ACCEL_THRESHOLD) * ACCEL_FACTOR);
+    }
+
+    // Apply multiplier
+    float new_delta = (float)delta * multiplier;
+
+    // Clamp to prevent HID overflow (wrapping around)
+    if (new_delta > ACCEL_MAX_DELTA) new_delta = ACCEL_MAX_DELTA;
+    if (new_delta < -ACCEL_MAX_DELTA) new_delta = -ACCEL_MAX_DELTA;
+
+    return (int16_t)new_delta;
+}
+
+// --- QMK Hook ---
+// This function is automatically called by trackballseries.c
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
+    uint32_t current_timer = timer_elapsed32(last_timer);
+    
+    // Prevent division by zero or huge jumps after sleep/wake
+    if (current_timer > 1000) {
+        current_timer = 16; // Assume ~60Hz if gap is too large
+    }
+
+    // Only apply logic if there is movement
+    // Note: If DragScroll is active, trackballseries.c zeroes X/Y before this runs,
+    // so acceleration won't affect scrolling speed.
+    if (mouse_report.x != 0 || mouse_report.y != 0) {
+        last_timer = timer_read32();
+        
+        // Apply acceleration
+        mouse_report.x = apply_accel(mouse_report.x, current_timer);
+        mouse_report.y = apply_accel(mouse_report.y, current_timer);
+    }
+
+    return mouse_report;
+}
+
+
 // 和rgb有关可以不用管
 #ifdef RGB_MATRIX_ENABLE
 
@@ -536,6 +599,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 /* oled stuff :) */
 #ifdef OLED_ENABLE
 
+
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     if (is_keyboard_master()) {
         return rotation;
@@ -682,6 +746,7 @@ static void master_data(void) {
 }
 
 bool oled_task_user(void) {
+
     if (is_keyboard_master()) {
         if (!user_config.is_oled_enabled) {
             // oled_clear();
@@ -718,6 +783,8 @@ void oled_render_boot(bool bootloader) {
 
 bool shutdown_user(bool jump_to_bootloader) {
     oled_render_boot(jump_to_bootloader);
+
+    return true; // <-- ADD When implementing custom pointer acceleration
 }
 
 #endif
