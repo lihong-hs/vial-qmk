@@ -18,6 +18,16 @@
       "shortName": "DPI-"
     },
     {
+      "name": "Pointer Acceleration Increase",
+      "title": "Pointer Accel Increase",
+      "shortName": "Accel+"
+    },
+    {
+      "name": "Pointer Acceleration Decrease", 
+      "title": "Pointer Accel Decrease",
+      "shortName": "Accel-"
+    },
+    {
       "title": "Sniping DPI Increase",
       "name": "Sniping DPI Inc",
       "shortName": "Snp+"
