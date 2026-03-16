@@ -21,7 +21,7 @@
 
 #    ifndef CHARYBDIS_ACCEL_SENSITIVITY_STEP_SIZE
 #        define CHARYBDIS_ACCEL_SENSITIVITY_STEP_SIZE 0.05f
-#    endif // Each level adds 5% speed
+#    endif
 
 #    ifndef CHARYBDIS_DEFAULT_DPI_CONFIG_STEP
 #        define CHARYBDIS_DEFAULT_DPI_CONFIG_STEP 50
