@@ -33,16 +33,10 @@ typedef union {
 // 2的数字范围是从0到3， 4是16位，5是0-31位，6是即0到63。
 static auto_config_t user_config;
 
-bool need_sync = true;
-
-void data_sync_handler(uint8_t in_buflen, const void *in_data, uint8_t out_buflen, void *out_data) {
-    memcpy(&user_config, in_data, in_buflen);
-}
-
 void keyboard_post_init_user(void) {
     user_config.raw = eeconfig_read_user();
 
-    transaction_register_rpc(RPC_DATA_SYNC, data_sync_handler);
+    // transaction_register_rpc(RPC_DATA_SYNC, data_sync_handler);
 }
 
 void eeconfig_init_user(void) {
@@ -512,20 +506,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case OLED_TOG:
             if (record->event.pressed) { // key down
                 user_config.is_oled_enabled ^= 1;
-                need_sync = true;
                 eeconfig_update_user(user_config.raw);
             }
             return false;
         case OLED_INFO_TOG:
             if (record->event.pressed) { // key down
                 user_config.is_oled_display_info ^= 1;
-                need_sync = true;
             }
             return false;
         case BACKLIGHT_TOG:
             if (record->event.pressed) { // key down
                 user_config.is_backlight_enabled ^= 1;
-                need_sync = true;
                 eeconfig_update_user(user_config.raw);
             }
             return false;
@@ -720,26 +711,9 @@ void oled_render_boot(bool bootloader) {
 
 bool shutdown_user(bool jump_to_bootloader) {
     oled_render_boot(jump_to_bootloader);
-
-    return true; // <-- ADD When implementing custom pointer acceleration
 }
 
 #endif
-
-void housekeeping_task_user(void) {
-    if (is_keyboard_master()) {
-        if (need_sync) {
-            // Interact with slave every 500ms
-            static uint32_t last_sync = 0;
-            if (timer_elapsed32(last_sync) > 500) {
-                if (transaction_rpc_send(RPC_DATA_SYNC, sizeof(user_config), &user_config)) {
-                    last_sync = timer_read32();
-                    need_sync = false;
-                }
-            }
-        }
-    }
-}
 
 // clang-format off
 //旋钮映射需要在vial的rules.mk加入
