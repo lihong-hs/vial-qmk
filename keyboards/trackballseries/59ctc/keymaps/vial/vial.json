@@ -8,83 +8,83 @@
   },
   "customKeycodes": [
     {
+      "name": "DPI_MOD",
       "title": "Default DPI Increase",
-      "name": "Default DPI Inc",
       "shortName": "DPI+"
     },
     {
+      "name": "DPI_RMOD",
       "title": "Default DPI Decrease",
-      "name": "Default DPI Dec",
       "shortName": "DPI-"
     },
     {
+      "title": "ACCEL_MOD",
       "name": "Pointer Acceleration Increase",
-      "title": "Pointer Accel Increase",
       "shortName": "Accel+"
     },
     {
+      "title": "ACCEL_RMOD",
       "name": "Pointer Acceleration Decrease",
-      "title": "Pointer Accel Decrease",
       "shortName": "Accel-"
     },
     {
+      "name": "S_D_MOD",
       "title": "Sniping DPI Increase",
-      "name": "Sniping DPI Inc",
       "shortName": "Snp+"
     },
     {
+      "name": "S_D_RMOD",
       "title": "Sniping DPI Decrease",
-      "name": "Sniping DPI Dec",
       "shortName": "Snp-"
     },
     {
+      "name": "SNIPING",
       "title": "Sniping Momentary",
-      "name": "Sniping MO",
       "shortName": "Snp"
     },
     {
+      "name": "SNP_TOG",
       "title": "Sniping Toggle",
-      "name": "Sniping TO",
       "shortName": "SnpT"
     },
     {
+      "name": "DRGSCRL",
       "title": "Drag-scroll Momentary",
-      "name": "Drag-scroll MO",
       "shortName": "Drg"
     },
     {
+      "name": "DRG_TOG",
       "title": "Drag-scroll Toggle",
-      "name": "Drag-scroll TG",
       "shortName": "DrgT"
     },
     {
+      "name": "DRG_MOD",
       "title": "Drag-scroll DPI Increase",
-      "name": "Drag-scroll inc",
       "shortName": "Drg+"
     },
     {
+      "name": "DRG_RMOD",
       "title": "Drag-scroll DPI Decrease",
-      "name": "Drag-scroll Decrease",
       "shortName": "Drg-"
     },
     {
+      "name": "OLED_TOG",
       "title": "Toggle OLED on and off",
-      "name": "Toggle OLED on and off",
       "shortName": "OLED\nToggle"
     },
     {
-      "title": "Toggle OLED info toggle",
-      "name": "Toggle OLED info toggle",
+      "name": "OLED_INFO_TOG",
+      "title": "Toggle OLED info toggle (Not Implemented)",
       "shortName": "OLED\nInfo\nToggle"
     },
     {
+      "name": "BACKLIGHT_TOG",
       "title": "Backlight Toggle",
-      "name": "Backlight Toggle",
       "shortName": "Backlight\nToggle"
     },
     {
-      "title": "Print Trackball Config",
       "name": "PRINT_CFG",
+      "title": "Print Trackball Config",
       "shortName": "Print\nConfig"
     }
   ],
