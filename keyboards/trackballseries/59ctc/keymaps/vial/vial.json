@@ -86,6 +86,11 @@
       "name": "PRINT_CFG",
       "title": "Print Trackball Config",
       "shortName": "Print\nConfig"
+    },
+    {
+      "name": "DB_TOGG_CUSTOM",
+      "title": "Debug Toggle",
+      "shortName": "Debug\nToggle"
     }
   ],
   "layouts": {

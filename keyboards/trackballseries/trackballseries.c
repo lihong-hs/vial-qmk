@@ -35,54 +35,49 @@
 #        define CHARYBDIS_SNIPING_DPI_CONFIG_STEP 50
 #    endif // CHARYBDIS_SNIPING_DPI_CONFIG_STEP
 
-
 typedef union {
     uint32_t raw;
     struct {
-        uint16_t pointer_dragscroll_dpi : 9; // 0-511
-        uint8_t pointer_default_dpi : 4; // 16 steps available.
-        uint8_t pointer_accel_sensitivty : 5;  // 32 steps available.
-        uint8_t pointer_sniping_dpi : 2; // 4 steps available.
-        bool    is_dragscroll_enabled : 1;
-        bool    is_sniping_enabled : 1;
+        uint16_t pointer_dragscroll_dpi : 9;   // 0-511
+        uint8_t  pointer_default_dpi : 4;      // 16 steps available.
+        uint8_t  pointer_accel_sensitivty : 5; // 32 steps available.
+        uint8_t  pointer_sniping_dpi : 2;      // 4 steps available.
+        bool     is_dragscroll_enabled : 1;
+        bool     is_sniping_enabled : 1;
     } __attribute__((packed));
 } charybdis_config_t;
 
 static charybdis_config_t g_charybdis_config = {0};
-//static charybdis_config_t g_charybdis_config;
-
+// static charybdis_config_t g_charybdis_config;
 
 // Fixed DPI for drag-scroll.
 #    ifndef CHARYBDIS_DRAGSCROLL_DPI
 #        define CHARYBDIS_DRAGSCROLL_DPI g_charybdis_config.pointer_dragscroll_dpi
 #    endif // CHARYBDIS_DRAGSCROLL_DPI
-//100 6
+// 100 6
 #    ifndef CHARYBDIS_DRAGSCROLL_BUFFER_SIZE
 #        define CHARYBDIS_DRAGSCROLL_BUFFER_SIZE 6
 #    endif // !CHARYBDIS_DRAGSCROLL_BUFFER_SIZE
 
-
-
-static void read_charybdis_config_from_eeprom(charybdis_config_t* config) {
-    config->raw                   = eeconfig_read_kb();
-//    config->raw                   = eeconfig_read_kb() & 0xff;
-//    config->pointer_dragscroll_dpi = 100;
+static void read_charybdis_config_from_eeprom(charybdis_config_t *config) {
+    config->raw = eeconfig_read_kb();
+    //    config->raw                   = eeconfig_read_kb() & 0xff;
+    //    config->pointer_dragscroll_dpi = 100;
     config->is_dragscroll_enabled = false;
     config->is_sniping_enabled    = false;
 }
 
-
-static void write_charybdis_config_to_eeprom(charybdis_config_t* config) {
+static void write_charybdis_config_to_eeprom(charybdis_config_t *config) {
     eeconfig_update_kb(config->raw);
 }
 
 /** \brief Return the current value of the pointer's default DPI. */
-static uint16_t get_pointer_default_dpi(charybdis_config_t* config) {
+static uint16_t get_pointer_default_dpi(charybdis_config_t *config) {
     return (uint16_t)config->pointer_default_dpi * CHARYBDIS_DEFAULT_DPI_CONFIG_STEP + CHARYBDIS_MINIMUM_DEFAULT_DPI;
 }
 
 /** \brief Return the current value of the pointer's sniper-mode DPI. */
-static uint16_t get_pointer_sniping_dpi(charybdis_config_t* config) {
+static uint16_t get_pointer_sniping_dpi(charybdis_config_t *config) {
     return (uint16_t)config->pointer_sniping_dpi * CHARYBDIS_SNIPING_DPI_CONFIG_STEP + CHARYBDIS_MINIMUM_SNIPING_DPI;
 }
 
@@ -92,9 +87,9 @@ static float get_pointer_accel_sensitivity(charybdis_config_t config) {
 }
 
 /** \brief Step the acceleration factor index up or down. */
-static void step_pointer_accel_factor(charybdis_config_t* config, bool forward) {
-    // Max value for a 5-bit field is 31
-    #define ACCEL_FACTOR_INDEX_MAX 31
+static void step_pointer_accel_factor(charybdis_config_t *config, bool forward) {
+// Max value for a 5-bit field is 31
+#    define ACCEL_FACTOR_INDEX_MAX 31
 
     if (forward) {
         if (config->pointer_accel_sensitivty < ACCEL_FACTOR_INDEX_MAX) {
@@ -108,9 +103,9 @@ static void step_pointer_accel_factor(charybdis_config_t* config, bool forward) 
 }
 
 /** \brief Set the appropriate DPI for the input config. */
-static void maybe_update_pointing_device_cpi(charybdis_config_t* config) {
+static void maybe_update_pointing_device_cpi(charybdis_config_t *config) {
     if (config->is_dragscroll_enabled) {
-//        pointing_device_set_cpi(CHARYBDIS_DRAGSCROLL_DPI);
+        //        pointing_device_set_cpi(CHARYBDIS_DRAGSCROLL_DPI);
         pointing_device_set_cpi(g_charybdis_config.pointer_dragscroll_dpi);
     } else if (config->is_sniping_enabled) {
         pointing_device_set_cpi(get_pointer_sniping_dpi(config));
@@ -122,19 +117,17 @@ static void maybe_update_pointing_device_cpi(charybdis_config_t* config) {
 /**
  * The increment/decrement steps are equal to CHARYBDIS_DEFAULT_DPI_CONFIG_STEP.
  */
-static void step_pointer_default_dpi(charybdis_config_t* config, bool forward) {
+static void step_pointer_default_dpi(charybdis_config_t *config, bool forward) {
     config->pointer_default_dpi += forward ? 1 : -1;
     maybe_update_pointing_device_cpi(config);
 }
 /**
  * The increment/decrement steps are equal to CHARYBDIS_SNIPING_DPI_CONFIG_STEP.
  */
-static void step_pointer_sniping_dpi(charybdis_config_t* config, bool forward) {
+static void step_pointer_sniping_dpi(charybdis_config_t *config, bool forward) {
     config->pointer_sniping_dpi += forward ? 1 : -1;
     maybe_update_pointing_device_cpi(config);
 }
-
-
 
 uint16_t charybdis_get_pointer_default_dpi(void) {
     return get_pointer_default_dpi(&g_charybdis_config);
@@ -147,7 +140,6 @@ uint16_t charybdis_get_pointer_sniping_dpi(void) {
 void charybdis_cycle_pointer_default_dpi_noeeprom(bool forward) {
     step_pointer_default_dpi(&g_charybdis_config, forward);
 }
-
 
 void charybdis_cycle_pointer_default_dpi(bool forward) {
     step_pointer_default_dpi(&g_charybdis_config, forward);
@@ -162,7 +154,6 @@ void charybdis_cycle_pointer_sniping_dpi(bool forward) {
 bool charybdis_get_pointer_sniping_enabled(void) {
     return g_charybdis_config.is_sniping_enabled;
 }
-
 
 void charybdis_set_pointer_sniping_enabled(bool enable) {
     g_charybdis_config.is_sniping_enabled = enable;
@@ -182,13 +173,12 @@ void charybdis_cycle_pointer_sniping_dpi_noeeprom(bool forward) {
     step_pointer_sniping_dpi(&g_charybdis_config, forward);
 }
 
-
 // --- Acceleration Configuration ---
 // The minimum speed (counts/ms) required before acceleration kicks in.
 // Prevents jitter when making tiny, precise movements.
-#define VELOCITY_THRESHOLD 1.0f
+#    define VELOCITY_THRESHOLD 1.0f
 // The maximum HID report value allowed. Prevents cursor from flying off-screen.
-#define MAX_REPORT_VALUE 127
+#    define MAX_REPORT_VALUE 127
 
 // --- State Tracking ---
 static uint32_t last_movement_timer = 0;
@@ -251,21 +241,21 @@ static int16_t apply_velocity_accel(int16_t movement_delta, uint16_t time_elapse
  *
  * Implement drag-scroll.
  */
-static void pointing_device_task_charybdis(report_mouse_t* mouse_report) {
+static void pointing_device_task_charybdis(report_mouse_t *mouse_report) {
     static int16_t scroll_buffer_x = 0;
     static int16_t scroll_buffer_y = 0;
     if (g_charybdis_config.is_dragscroll_enabled) {
-    #ifdef CHARYBDIS_DRAGSCROLL_REVERSE_X
+#    ifdef CHARYBDIS_DRAGSCROLL_REVERSE_X
         scroll_buffer_x -= mouse_report->x;
-    #else
+#    else
         scroll_buffer_x += mouse_report->x;
-    #endif // CHARYBDIS_DRAGSCROLL_REVERSE_X
+#    endif // CHARYBDIS_DRAGSCROLL_REVERSE_X
 
-    #ifdef CHARYBDIS_DRAGSCROLL_REVERSE_Y
+#    ifdef CHARYBDIS_DRAGSCROLL_REVERSE_Y
         scroll_buffer_y -= mouse_report->y;
-    #else
+#    else
         scroll_buffer_y += mouse_report->y;
-    #endif // CHARYBDIS_DRAGSCROLL_REVERSE_Y
+#    endif // CHARYBDIS_DRAGSCROLL_REVERSE_Y
         mouse_report->x = 0;
         mouse_report->y = 0;
         if (abs(scroll_buffer_x) > CHARYBDIS_DRAGSCROLL_BUFFER_SIZE) {
@@ -329,43 +319,39 @@ static bool has_shift_mod(void) {
  * \brief Outputs the Charybdis configuration to console.
  *
  */
-char* get_trackball_config_string(void) {
-    static char buffer[256];  // Static buffer to hold the combined string
-    
-    float accel_sensitivity = get_pointer_accel_sensitivity(g_charybdis_config);
-    uint8_t whole = (uint8_t)accel_sensitivity;
-    uint8_t fractional = (uint8_t)((accel_sensitivity - whole) * 100);
-    char accel_str[8];
+char *get_trackball_config_string(void) {
+    static char buffer[256]; // Static buffer to hold the combined string
+
+    float   accel_sensitivity = get_pointer_accel_sensitivity(g_charybdis_config);
+    uint8_t whole             = (uint8_t)accel_sensitivity;
+    uint8_t fractional        = (uint8_t)((accel_sensitivity - whole) * 100);
+    char    accel_str[8];
     snprintf(accel_str, sizeof(accel_str), "%d.%02d", whole, fractional);
-    
+
     snprintf(buffer, sizeof(buffer),
-        "=== Trackball Config ===\n"
-        "Default DPI : %d\n"
-        "Accel Sensitivity: %s\n"
-        "Sniping DPI : %d [%s]\n"
-        "Drag-scroll DPI : %d [%s]\n"
-        "========================\n",
-        charybdis_get_pointer_default_dpi(),
-        accel_str,
-        charybdis_get_pointer_sniping_dpi(),
-        g_charybdis_config.is_sniping_enabled ? "Active" : "Inactive",
-        g_charybdis_config.pointer_dragscroll_dpi,
-        g_charybdis_config.is_dragscroll_enabled ? "Active" : "Inactive"
-    );
-    
+             "=== Trackball Config ===\n"
+             "Default DPI : %d\n"
+             "Accel Sensitivity: %s\n"
+             "Sniping DPI : %d [%s]\n"
+             "Drag-scroll DPI : %d [%s]\n"
+             "========================\n",
+             charybdis_get_pointer_default_dpi(), accel_str, charybdis_get_pointer_sniping_dpi(), g_charybdis_config.is_sniping_enabled ? "Active" : "Inactive", g_charybdis_config.pointer_dragscroll_dpi, g_charybdis_config.is_dragscroll_enabled ? "Active" : "Inactive");
+
     return buffer;
 }
 
 static void print_charybdis_config_to_console(charybdis_config_t *config) {
 #    ifdef CONSOLE_ENABLE
-    char *config_string = get_trackball_config_string();
-    uprintf("%s", config_string);
+    if (debug_enable) {
+        char *config_string = get_trackball_config_string();
+        uprintf("%s", config_string);
+    }
 #    endif // CONSOLE_ENABLE
 }
 
-bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
+bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 #    ifdef POINTING_DEVICE_ENABLE
-#ifndef NO_CHARYBDIS_KEYCODES
+#        ifndef NO_CHARYBDIS_KEYCODES
     switch (keycode) {
         case POINTER_DEFAULT_DPI_FORWARD:
             if (record->event.pressed) {
@@ -420,11 +406,10 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             }
             break;
 
-
         case POINTER_DRAGSCROLL_DPI_FORWARD:
             if (record->event.pressed) {
                 uint16_t new_value = g_charybdis_config.pointer_dragscroll_dpi + 100;
-                if (new_value > 511) { // 确保不超过位域的最大值511
+                if (new_value > 511) {                               // 确保不超过位域的最大值511
                     g_charybdis_config.pointer_dragscroll_dpi = 100; // 超过511时重置为100
                 } else if (new_value > 500) {
                     g_charybdis_config.pointer_dragscroll_dpi = 100; // 达到或超过500时也重置为100
@@ -438,8 +423,8 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             break;
         case POINTER_DRAGSCROLL_DPI_REVERSE:
             if (record->event.pressed) {
-               uint16_t new_value = g_charybdis_config.pointer_dragscroll_dpi - 100;
-                if (new_value > 511) { // 确保不超过位域的最大值511
+                uint16_t new_value = g_charybdis_config.pointer_dragscroll_dpi - 100;
+                if (new_value > 511) {                               // 确保不超过位域的最大值511
                     g_charybdis_config.pointer_dragscroll_dpi = 500; // 超过511时重置为100
                 } else if (new_value > 500) {
                     g_charybdis_config.pointer_dragscroll_dpi = 500; // 达到或超过500时也重置为100
@@ -469,6 +454,22 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
     }
 #        endif // !NO_CHARYBDIS_KEYCODES
 #    endif     // POINTING_DEVICE_ENABLE
+
+    switch (keycode) {
+        case DB_TOGG_CUSTOM:
+            if (record->event.pressed) {
+#    ifdef CONSOLE_ENABLE
+                debug_enable = !debug_enable;
+                if (debug_enable) {
+                    uprint("Toggle debug on\n========================\n");
+                    print_charybdis_config_to_console(&g_charybdis_config);
+                } else {
+                    uprint("Toggle debug off\n========================\n");
+                }
+#    endif // CONSOLE_ENABLE
+            }
+            break;
+    }
     return true;
 }
 
@@ -488,8 +489,8 @@ void matrix_init_kb(void) {
     matrix_init_user();
 }
 
-#ifdef CHARYBDIS_CONFIG_SYNC
-void charybdis_config_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
+#    ifdef CHARYBDIS_CONFIG_SYNC
+void charybdis_config_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
     if (initiator2target_buffer_size == sizeof(g_charybdis_config)) {
         memcpy(&g_charybdis_config, initiator2target_buffer, sizeof(g_charybdis_config));
     }
@@ -497,11 +498,11 @@ void charybdis_config_sync_handler(uint8_t initiator2target_buffer_size, const v
 #    endif
 
 void keyboard_post_init_kb(void) {
-    debug_enable=true;
+    debug_enable = false;
     maybe_update_pointing_device_cpi(&g_charybdis_config);
-    #ifdef CHARYBDIS_CONFIG_SYNC
-        transaction_register_rpc(RPC_ID_KB_CONFIG_SYNC, charybdis_config_sync_handler);
-    #endif
+#    ifdef CHARYBDIS_CONFIG_SYNC
+    transaction_register_rpc(RPC_ID_KB_CONFIG_SYNC, charybdis_config_sync_handler);
+#    endif
     keyboard_post_init_user();
 }
 
@@ -573,10 +574,10 @@ void trackball_oled_default(void) {
 
 void trackball_oled_info(void) {
 #ifdef OLED_ENABLE
-    float accel_sensitivity = get_pointer_accel_sensitivity(g_charybdis_config);
-    uint8_t whole = (uint8_t)accel_sensitivity;
-    uint8_t fractional = (uint8_t)((accel_sensitivity - whole) * 100);
-    char accel_str[8];
+    float   accel_sensitivity = get_pointer_accel_sensitivity(g_charybdis_config);
+    uint8_t whole             = (uint8_t)accel_sensitivity;
+    uint8_t fractional        = (uint8_t)((accel_sensitivity - whole) * 100);
+    char    accel_str[8];
     snprintf(accel_str, sizeof(accel_str), "%d.%02d", whole, fractional);
     oled_write_P(PSTR(" ACC-S :"), false);
     oled_write_ln(accel_str, false);
