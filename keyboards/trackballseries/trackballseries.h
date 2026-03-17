@@ -38,6 +38,7 @@ enum charybdis_keycodes {
     OLED_TOGGLE,
     OLED_INFO_TOGGLE,
     BACKLIGHT_TOGGLE,
+    PRINT_CONFIG,
 };
 
 #define DPI_MOD POINTER_DEFAULT_DPI_FORWARD
@@ -55,6 +56,7 @@ enum charybdis_keycodes {
 #define OLED_TOG OLED_TOGGLE
 #define OLED_INFO_TOG OLED_INFO_TOGGLE
 #define BACKLIGHT_TOG BACKLIGHT_TOGGLE
+#define PRINT_CFG PRINT_CONFIG 
 #endif // !NO_CHARYBDIS_KEYCOD
 /** \brief Return the current DPI value for the pointer's default mode. */
 uint16_t charybdis_get_pointer_default_dpi(void);

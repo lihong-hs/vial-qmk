@@ -23,7 +23,7 @@
       "shortName": "Accel+"
     },
     {
-      "name": "Pointer Acceleration Decrease", 
+      "name": "Pointer Acceleration Decrease",
       "title": "Pointer Accel Decrease",
       "shortName": "Accel-"
     },
@@ -81,6 +81,11 @@
       "title": "Backlight Toggle",
       "name": "Backlight Toggle",
       "shortName": "Backlight\nToggle"
+    },
+    {
+      "title": "Print Trackball Config",
+      "name": "PRINT_CFG",
+      "shortName": "Print\nConfig"
     }
   ],
   "layouts": {

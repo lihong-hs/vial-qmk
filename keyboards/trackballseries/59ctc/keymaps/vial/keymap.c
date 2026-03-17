@@ -711,6 +711,8 @@ void oled_render_boot(bool bootloader) {
 
 bool shutdown_user(bool jump_to_bootloader) {
     oled_render_boot(jump_to_bootloader);
+
+    return true;
 }
 
 #endif
