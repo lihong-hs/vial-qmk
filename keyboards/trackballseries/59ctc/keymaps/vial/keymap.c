@@ -15,13 +15,6 @@ enum charybdis_keymap_layers {
     LAYER_SETTINGS,
 };
 
-#ifndef POINTING_DEVICE_ENABLE
-#    define DRGSCRL KC_NO
-#    define DPI_MOD KC_NO
-#    define S_D_MOD KC_NO
-#    define SNIPING KC_NO
-#endif // !POINTING_DEVICE_ENABLE
-
 typedef union {
     uint32_t raw;
     struct {
@@ -30,13 +23,11 @@ typedef union {
         bool is_backlight_enabled : 1;
     };
 } auto_config_t;
-// 2的数字范围是从0到3， 4是16位，5是0-31位，6是即0到63。
+
 static auto_config_t user_config;
 
 void keyboard_post_init_user(void) {
     user_config.raw = eeconfig_read_user();
-
-    // transaction_register_rpc(RPC_DATA_SYNC, data_sync_handler);
 }
 
 void eeconfig_init_user(void) {
@@ -278,23 +269,67 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 // clang-format on
-//
 
-#ifdef COMBO_MUST_TAP_PER_COMBO
-bool get_combo_must_tap(uint16_t combo_index, combo_t *combo) {
-    // All combos is tap-only
+layer_state_t layer_state_set_user(layer_state_t state) {
+    led_t led_state        = host_keyboard_led_state();
+    bool  g_num_lock_state = led_state.num_lock;
+
+    switch (get_highest_layer(state)) {
+        case LAYER_BASE:
+            break;
+        case LAYER_QWERTY:
+            break;
+        case LAYER_MOUSE:
+            break;
+        case LAYER_MOUSE_QWERTY:
+            break;
+        case LAYER_NUMROW:
+            break;
+        case LAYER_F_KEYS:
+            break;
+        case LAYER_SYMBOLS:
+            break;
+        case LAYER_NUMPAD: // turn on numlock, if it isn't already on.
+            if (!g_num_lock_state) {
+                tap_code(KC_NUM_LOCK);
+            }
+            break;
+        case LAYER_NAV:
+            break;
+        case LAYER_SETTINGS:
+            break;
+        default:
+    }
+    return state;
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case OLED_TOG:
+            if (record->event.pressed) { // key down
+                user_config.is_oled_enabled ^= 1;
+                eeconfig_update_user(user_config.raw);
+            }
+            return false;
+        case OLED_INFO_TOG:
+            if (record->event.pressed) { // key down
+                user_config.is_oled_display_info ^= 1;
+            }
+            return false;
+        case BACKLIGHT_TOG:
+            if (record->event.pressed) { // key down
+                user_config.is_backlight_enabled ^= 1;
+                eeconfig_update_user(user_config.raw);
+            }
+            return false;
+    }
     return true;
 }
-#endif
 
-// 用来检测自动切换鼠标层的地方，如果鼠标的水平位移x或垂直位移y的绝对值大于设定的阈值
-// 自动切换到LAYER_POINTER鼠标层，并将rgb改为绿色
-// 如果没有开启这个不起作用
-#ifdef POINTING_DEVICE_ENABLE
+// ===============================================
+// RGB
+// ===============================================
 
-#endif // POINTING_DEVICE_ENABLE
-
-// 和rgb有关可以不用管
 #ifdef RGB_MATRIX_ENABLE
 
 enum rgb_highlight_mode {
@@ -464,69 +499,13 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     return false;
 }
 
-#endif
+#endif // RGB_MATRIX_ENABLE
 
-layer_state_t layer_state_set_user(layer_state_t state) {
-    led_t led_state        = host_keyboard_led_state();
-    bool  g_num_lock_state = led_state.num_lock;
+// ===============================================
+// OLED
+// ===============================================
 
-    switch (get_highest_layer(state)) {
-        case LAYER_BASE:
-            break;
-        case LAYER_QWERTY:
-            break;
-        case LAYER_MOUSE:
-            break;
-        case LAYER_MOUSE_QWERTY:
-            break;
-        case LAYER_NUMROW:
-            break;
-        case LAYER_F_KEYS:
-            break;
-        case LAYER_SYMBOLS:
-            break;
-        case LAYER_NUMPAD:
-            // turn on numlock, if it isn't already on.
-            if (!g_num_lock_state) {
-                tap_code(KC_NUM_LOCK);
-            }
-            break;
-        case LAYER_NAV:
-            break;
-        case LAYER_SETTINGS:
-            break;
-        default:
-    }
-    return state;
-}
-
-// 自定义键值
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case OLED_TOG:
-            if (record->event.pressed) { // key down
-                user_config.is_oled_enabled ^= 1;
-                eeconfig_update_user(user_config.raw);
-            }
-            return false;
-        case OLED_INFO_TOG:
-            if (record->event.pressed) { // key down
-                user_config.is_oled_display_info ^= 1;
-            }
-            return false;
-        case BACKLIGHT_TOG:
-            if (record->event.pressed) { // key down
-                user_config.is_backlight_enabled ^= 1;
-                eeconfig_update_user(user_config.raw);
-            }
-            return false;
-    }
-    return true;
-}
-
-/* oled stuff :) */
 #ifdef OLED_ENABLE
-
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     if (is_keyboard_master()) {
@@ -674,7 +653,6 @@ static void master_data(void) {
 }
 
 bool oled_task_user(void) {
-
     if (is_keyboard_master()) {
         if (!user_config.is_oled_enabled) {
             // oled_clear();
@@ -715,7 +693,11 @@ bool shutdown_user(bool jump_to_bootloader) {
     return true;
 }
 
-#endif
+#endif // OLED_ENABLE
+
+// ===============================================
+// ENCODER
+// ===============================================
 
 // clang-format off
 //旋钮映射需要在vial的rules.mk加入
