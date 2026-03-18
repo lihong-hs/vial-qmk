@@ -5,6 +5,6 @@ VIAL_INSECURE = yes
 
 OLED_ENABLE         = no
 EXTRAKEY_ENABLE     = yes
-WPM_ENABLE = yes
+WPM_ENABLE = no
 ENCODER_ENABLE = yes
 ENCODER_MAP_ENABLE = yes
