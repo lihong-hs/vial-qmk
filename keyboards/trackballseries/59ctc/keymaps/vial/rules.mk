@@ -3,7 +3,7 @@ VIAL_ENABLE = yes
 VIALRGB_ENABLE = no
 VIAL_INSECURE = yes
 
-OLED_ENABLE         = no
+OLED_ENABLE        = yes
 EXTRAKEY_ENABLE     = yes
 WPM_ENABLE = no
 ENCODER_ENABLE = yes

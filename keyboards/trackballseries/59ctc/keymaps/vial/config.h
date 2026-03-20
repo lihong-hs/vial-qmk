@@ -27,13 +27,10 @@
 #endif // VIAL_ENABLE
 #endif     // VIA_ENABLE
 
-/* Charybdis-specific features. */
+/* Keyball-specific features. */
 
 #ifdef POINTING_DEVICE_ENABLE
-// Automatically enable the pointer layer when moving the trackball.  See also:
-// - `CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_TIMEOUT_MS`
-// - `CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD`
-//#define CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
+
 #undef ROTATIONAL_TRANSFORM_ANGLE
 #define ROTATIONAL_TRANSFORM_ANGLE 90
 //交换x,y数据
@@ -48,20 +45,8 @@
 #undef POINTING_DEVICE_INVERT_X
 //#endif // POINTING_DEVICE_ENABLE
 
-//#define CHARYBDIS_DRAGSCROLL_REVERSE_X
-//要反转垂直滚动方向（即模仿 macOS“自然”滚动方向），请定义CHARYBDIS_DRAGSCROLL_REVERSE_Y
-#define CHARYBDIS_DRAGSCROLL_REVERSE_Y
+//#define KEYBALL_DRAGSCROLL_REVERSE_X
+//要反转垂直滚动方向（即模仿 macOS“自然”滚动方向），请定义KEYBALL_DRAGSCROLL_REVERSE_Y
+#define KEYBALL_DRAGSCROLL_REVERSE_Y
 
-//#ifdef POINTING_DEVICE_ENABLE
-// Enable pointer acceleration, which increases the speed by ~2x for large
-// displacement, while maintaining 1x speed for slow movements.
-// - `CHARYBDIS_POINTER_ACCELERATION_FACTOR`
-//启用指针加速，这将使速度增加~2x
-//位移，同时保持1倍的速度缓慢移动。
-//#   define CHARYBDIS_POINTER_ACCELERATION_ENABLE
-
-// Automatically enable the pointer layer when moving the trackball.  See also:
-// - `CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_TIMEOUT_MS`
-// - `CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD`
-// #define CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
 #endif  // POINTING_DEVICE_ENABLE

@@ -36,14 +36,14 @@
 #define PMW33XX_CS_PIN GP16
 
 /* Reset. */
-//#define RP2040_BOOTLOADER_DOUBLE_TAP_RESET
-//#define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_LED GP17
-//#define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_TIMEOUT 1000U
+// #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET
+// #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_LED GP17
+// #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET_TIMEOUT 1000U
 #define SERIAL_USART_FULL_DUPLEX
 #define SERIAL_USART_TX_PIN GP1
 #define SERIAL_USART_RX_PIN GP0
-//TX主半部必须与RX从半部的引脚相连，RX主半部必须与TX从半部的引脚相连
-//这个配置可以在内部直接交换，不需要在物理pcb交换
+// TX主半部必须与RX从半部的引脚相连，RX主半部必须与TX从半部的引脚相连
+// 这个配置可以在内部直接交换，不需要在物理pcb交换
 #define SERIAL_USART_PIN_SWAP
 
 #define TAP_CODE_DELAY 10
@@ -57,15 +57,16 @@
 
 #ifdef OLED_ENABLE
 /* 同步两半之间 OLED 的开/关状态。 */
-#define SPLIT_OLED_ENABLE
+#    define SPLIT_OLED_ENABLE
 /* 使用 QMK 提供的分割传输时，确保当前 WPM 在从属设备上可用 */
 // #define SPLIT_WPM_ENABLE
-#define OLED_FONT_H "keyboards/trackballseries/59ctc/keymaps/vial/glcdfont.c"
-#define OLED_TIMEOUT 5000
+#    define OLED_FONT_H "keyboards/trackballseries/59ctc/keymaps/vial/glcdfont.c"
+#    define OLED_TIMEOUT 2000
+#    define OLED_BRIGHTNESS 128
 #endif
 
-// #define SPLIT_TRANSACTION_IDS_USER RPC_DATA_SYNC
+#define SPLIT_TRANSACTION_IDS_USER RPC_USER_CONFIG_SYNC, RPC_USER_KB_STATE_SYNC
 
-//解决从机休眠后无法唤醒问题
-//#define FORCED_SYNC_THROTTLE_MS 100
-//#define CHARYBDIS_CONFIG_SYNC
+// 解决从机休眠后无法唤醒问题
+// #define FORCED_SYNC_THROTTLE_MS 100
+// #define KEYBALL_CONFIG_SYNC

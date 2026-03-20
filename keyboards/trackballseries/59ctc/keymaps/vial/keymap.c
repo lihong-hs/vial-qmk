@@ -2,7 +2,7 @@
 #include QMK_KEYBOARD_H
 #include "transactions.h"
 
-enum charybdis_keymap_layers {
+enum keyball_keymap_layers {
     LAYER_BASE = 0,
     LAYER_QWERTY,
     LAYER_MOUSE,
@@ -16,7 +16,7 @@ enum charybdis_keymap_layers {
 };
 
 typedef union {
-    uint32_t raw;
+    uint8_t raw;
     struct {
         bool is_oled_enabled : 1;
         bool is_oled_display_info : 1;
@@ -24,18 +24,41 @@ typedef union {
     };
 } auto_config_t;
 
-static auto_config_t user_config;
+static auto_config_t g_user_config = {0};
+
+typedef union {
+    uint8_t raw;
+    struct {
+        bool is_oled_timeout : 1;
+    };
+} kb_state_t;
+
+static kb_state_t g_kb_state = {0};
+
+void g_user_config_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
+    if (initiator2target_buffer_size == sizeof(auto_config_t)) {
+        memcpy(&g_user_config, initiator2target_buffer, sizeof(auto_config_t));
+    }
+}
+
+void kb_state_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
+    if (initiator2target_buffer_size == sizeof(kb_state_t)) {
+        memcpy(&g_kb_state, initiator2target_buffer, sizeof(kb_state_t));
+    }
+}
 
 void keyboard_post_init_user(void) {
-    user_config.raw = eeconfig_read_user();
+    g_user_config.raw = eeconfig_read_user();
+    transaction_register_rpc(RPC_USER_CONFIG_SYNC, g_user_config_sync_handler);
+    transaction_register_rpc(RPC_USER_KB_STATE_SYNC, kb_state_sync_handler);
 }
 
 void eeconfig_init_user(void) {
-    user_config.raw                  = 0;
-    user_config.is_oled_enabled      = 0;
-    user_config.is_oled_display_info = 1;
-    user_config.is_backlight_enabled = 0;
-    eeconfig_update_user(user_config.raw);
+    g_user_config.raw                  = 0;
+    g_user_config.is_oled_enabled      = 0;
+    g_user_config.is_oled_display_info = 1;
+    g_user_config.is_backlight_enabled = 0;
+    eeconfig_update_user(g_user_config.raw);
 }
 
 // clang-format off
@@ -307,19 +330,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case OLED_TOG:
             if (record->event.pressed) { // key down
-                user_config.is_oled_enabled ^= 1;
-                eeconfig_update_user(user_config.raw);
+                g_user_config.is_oled_enabled ^= 1;
+                eeconfig_update_user(g_user_config.raw);
             }
             return false;
         case OLED_INFO_TOG:
             if (record->event.pressed) { // key down
-                user_config.is_oled_display_info ^= 1;
+                g_user_config.is_oled_display_info ^= 1;
             }
             return false;
         case BACKLIGHT_TOG:
             if (record->event.pressed) { // key down
-                user_config.is_backlight_enabled ^= 1;
-                eeconfig_update_user(user_config.raw);
+                g_user_config.is_backlight_enabled ^= 1;
+                eeconfig_update_user(g_user_config.raw);
             }
             return false;
     }
@@ -351,7 +374,7 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     hsv_t hsv_base      = {HSV_WHITE};
     hsv_t hsv_highlight = {HSV_WHITE};
 
-    if (!user_config.is_backlight_enabled) {
+    if (!g_user_config.is_backlight_enabled) {
         hsv_base = (hsv_t){HSV_OFF};
     }
 
@@ -371,13 +394,13 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         case LAYER_MOUSE:
             lightMode     = HIGHLIGHT_PER_INDEX;
             hsv_highlight = (hsv_t){HSV_SPRINGGREEN};
-            if (user_config.is_backlight_enabled) {
+            if (g_user_config.is_backlight_enabled) {
                 hsv_base = (hsv_t){HSV_SPRINGGREEN};
             }
-            if (charybdis_get_pointer_sniping_enabled()) {
+            if (keyball_get_pointer_sniping_enabled()) {
                 hsv_highlight = (hsv_t){HSV_PINK};
             }
-            if (charybdis_get_pointer_dragscroll_enabled()) {
+            if (keyball_get_pointer_dragscroll_enabled()) {
                 hsv_highlight = (hsv_t){HSV_GOLD};
             }
             int highlightIndexes2[] = {55};
@@ -387,13 +410,13 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         case LAYER_MOUSE_QWERTY:
             lightMode     = HIGHLIGHT_PER_INDEX;
             hsv_highlight = (hsv_t){HSV_CHARTREUSE};
-            if (user_config.is_backlight_enabled) {
+            if (g_user_config.is_backlight_enabled) {
                 hsv_base = (hsv_t){HSV_CHARTREUSE};
             }
-            if (charybdis_get_pointer_sniping_enabled()) {
+            if (keyball_get_pointer_sniping_enabled()) {
                 hsv_highlight = (hsv_t){HSV_PINK};
             }
-            if (charybdis_get_pointer_dragscroll_enabled()) {
+            if (keyball_get_pointer_dragscroll_enabled()) {
                 hsv_highlight = (hsv_t){HSV_GOLD};
             }
             int highlightIndexes3[] = {31, 55};
@@ -507,42 +530,21 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
 #ifdef OLED_ENABLE
 
-oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-    if (is_keyboard_master()) {
-        return rotation;
-    } else {
-        return OLED_ROTATION_270;
-    }
-}
-
-void render_space(void) {
+static void render_space(void) {
     oled_write_P(PSTR("     "), false);
 }
 
-void render_logo(void) {
+static void render_logo(void) {
     oled_write_P(PSTR("KBL59"), false);
 }
 
-// 从设备
 static void slave_data(void) {
-#    if OLED_TIMEOUT > 0
-    if (last_input_activity_elapsed() > OLED_TIMEOUT) {
-        //        oled_clear();
-        oled_off();
-        return;
-    } else {
-        oled_on();
-    }
-#    endif
-
     render_space();
     render_logo();
-    // oled_set_cursor(0, 4);
-
     render_space();
 
     uint8_t layer = get_highest_layer(layer_state);
-    /* Print current layer */
+
     switch (layer) {
         case LAYER_BASE:
             oled_write("  0  ", false);
@@ -631,45 +633,44 @@ static void slave_data(void) {
     }
 }
 
-static void trackball_dpis(void) {
-#    if OLED_TIMEOUT > 0
-    if (last_input_activity_elapsed() > OLED_TIMEOUT) {
-        //        oled_clear();
-        oled_off();
-        return;
-    } else {
-        oled_on();
-    }
-#    endif
-
+static void master_data(void) {
     oled_clear();
-    trackball_oled_default();
-    trackball_oled_info();
+    oled_trackball_config_info();
 }
 
-// 主设备OLED
-static void master_data(void) {
-    trackball_dpis();
+static bool can_render_oled(void) { // Fixed typo
+#    if defined(OLED_TIMEOUT) && OLED_TIMEOUT > 0
+    if (is_keyboard_master()) {
+        if (last_input_activity_elapsed() < OLED_TIMEOUT) {
+            g_kb_state.is_oled_timeout = false;
+            return true;
+        }
+        g_kb_state.is_oled_timeout = true;
+        return false;
+    }
+    return !g_kb_state.is_oled_timeout;
+#    else
+    return true;
+#    endif
 }
 
 bool oled_task_user(void) {
-    if (is_keyboard_master()) {
-        if (!user_config.is_oled_enabled) {
-            // oled_clear();
-            oled_off();
-        } else {
-            oled_on();
+    bool can_render = g_user_config.is_oled_enabled && can_render_oled();
 
+    if (can_render) {
+        oled_on();
+        if (is_keyboard_master()) {
             if (is_oled_on()) {
                 master_data();
             }
+        } else {
+            if (is_oled_on()) {
+                slave_data();
+            }
         }
     } else {
-        if (is_oled_on()) {
-            slave_data();
-        }
+        oled_off();
     }
-
     return false;
 }
 
@@ -687,6 +688,14 @@ void oled_render_boot(bool bootloader) {
     oled_render_dirty(true);
 }
 
+oled_rotation_t oled_init_user(oled_rotation_t rotation) {
+    if (is_keyboard_master()) {
+        return rotation;
+    } else {
+        return OLED_ROTATION_270;
+    }
+}
+
 bool shutdown_user(bool jump_to_bootloader) {
     oled_render_boot(jump_to_bootloader);
 
@@ -694,6 +703,49 @@ bool shutdown_user(bool jump_to_bootloader) {
 }
 
 #endif // OLED_ENABLE
+
+// ===============================================
+// State Sync
+// ===============================================
+
+// Generic sync function template
+static inline bool sync_state(const void *current_state, void *last_state, uint32_t *last_sync_time, uint16_t rpc_id, size_t state_size) {
+    bool needs_sync = false;
+
+    // Check if state has changed
+    if (memcmp(current_state, last_state, state_size) != 0) {
+        needs_sync = true;
+        memcpy(last_state, current_state, state_size);
+    }
+
+    // Periodic sync every 500ms
+    if (timer_elapsed32(*last_sync_time) > 500) {
+        needs_sync = true;
+    }
+
+    if (needs_sync) {
+        if (transaction_rpc_send(rpc_id, state_size, current_state)) {
+            *last_sync_time = timer_read32();
+            return true;
+        }
+        return false;
+    }
+    return true;
+}
+
+#define SYNC_STATE(state_var, rpc_id, last_sync_var, last_state_var) sync_state(&state_var, &last_state_var, &last_sync_var, rpc_id, sizeof(state_var))
+
+void housekeeping_task_user(void) {
+    if (is_keyboard_master()) {
+        static auto_config_t last_g_user_config    = {0};
+        static uint32_t      user_config_last_sync = 0;
+        SYNC_STATE(g_user_config, RPC_USER_CONFIG_SYNC, user_config_last_sync, last_g_user_config);
+
+        static kb_state_t last_g_kb_state    = {0};
+        static uint32_t   kb_state_last_sync = 0;
+        SYNC_STATE(g_kb_state, RPC_USER_KB_STATE_SYNC, kb_state_last_sync, last_g_kb_state);
+    }
+}
 
 // ===============================================
 // ENCODER
