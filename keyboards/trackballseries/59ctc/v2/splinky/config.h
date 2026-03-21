@@ -62,7 +62,7 @@
 // #define SPLIT_WPM_ENABLE
 #    define OLED_FONT_H "keyboards/trackballseries/59ctc/keymaps/vial/glcdfont.c"
 #    define OLED_TIMEOUT 2000
-#    define OLED_BRIGHTNESS 128
+#    define OLED_BRIGHTNESS 5
 #endif
 
 #define SPLIT_TRANSACTION_IDS_USER RPC_USER_CONFIG_SYNC, RPC_USER_KB_STATE_SYNC
