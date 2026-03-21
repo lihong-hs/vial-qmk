@@ -5,13 +5,13 @@
 enum keyball_keymap_layers {
     LAYER_BASE = 0,
     LAYER_QWERTY,
-    LAYER_MOUSE,
-    LAYER_MOUSE_QWERTY,
-    LAYER_NUMROW,
+    LAYER_LOWER_MOUSE_NAV,
+    LAYER_QWERTY_MOUSE,
+    LAYER_WORKSPACE_SWITCH,
     LAYER_F_KEYS,
     LAYER_SYMBOLS,
     LAYER_NUMPAD,
-    LAYER_NAV,
+    LAYER_UPPER_MOUSE_NAV,
     LAYER_SETTINGS,
 };
 
@@ -92,7 +92,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //                            ╰───────────────────────────╯               ╰──────────────────╯
   ),
 
-  [LAYER_MOUSE] = LAYOUT(
+  [LAYER_LOWER_MOUSE_NAV] = LAYOUT(
   // ╭──────────────────────────────────────────────────────╮               ╭──────────────────────────────────────────────────────╮
        _______, _______, _______, _______, _______, _______,                  TG(3),   KC_HOME,   KC_PGUP,   KC_PGDN,  KC_END,  TG(2),
   // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
@@ -107,7 +107,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  //                            ╰───────────────────────────╯               ╰──────────────────╯
   ),
 
-  [LAYER_MOUSE_QWERTY] = LAYOUT(
+  [LAYER_QWERTY_MOUSE] = LAYOUT(
   // ╭──────────────────────────────────────────────────────╮               ╭──────────────────────────────────────────────────────╮
        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  TG(3), XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
@@ -121,7 +121,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                             KC_LALT, KC_BSPC, KC_LALT,        KC_BTN1, KC_BTN2
  //                            ╰───────────────────────────╯               ╰──────────────────╯
   ),
-  [LAYER_NUMROW] = LAYOUT(
+  [LAYER_WORKSPACE_SWITCH] = LAYOUT(
   // ╭──────────────────────────────────────────────────────╮               ╭──────────────────────────────────────────────────────╮
        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
@@ -177,7 +177,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                             KC_LALT, KC_BSPC, KC_LALT,        KC_BTN1, KC_BTN2
  //                            ╰───────────────────────────╯               ╰──────────────────╯
   ),
-   [LAYER_NAV] = LAYOUT(
+   [LAYER_UPPER_MOUSE_NAV] = LAYOUT(
   // ╭──────────────────────────────────────────────────────╮               ╭──────────────────────────────────────────────────────╮
        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   // ├──────────────────────────────────────────────────────┤               ├──────────────────────────────────────────────────────┤
@@ -302,11 +302,11 @@ layer_state_t layer_state_set_user(layer_state_t state) {
             break;
         case LAYER_QWERTY:
             break;
-        case LAYER_MOUSE:
+        case LAYER_LOWER_MOUSE_NAV:
             break;
-        case LAYER_MOUSE_QWERTY:
+        case LAYER_QWERTY_MOUSE:
             break;
-        case LAYER_NUMROW:
+        case LAYER_WORKSPACE_SWITCH:
             break;
         case LAYER_F_KEYS:
             break;
@@ -317,7 +317,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
                 tap_code(KC_NUM_LOCK);
             }
             break;
-        case LAYER_NAV:
+        case LAYER_UPPER_MOUSE_NAV:
             break;
         case LAYER_SETTINGS:
             break;
@@ -361,13 +361,142 @@ enum rgb_highlight_mode {
     HIGHLIGHT_WHERE_THERE_ARE_KEYS = 2,
 };
 
-bool contains_int(int arr[], int size, int target) {
-    for (int i = 0; i < size; i++) {
+typedef struct {
+    int   index;
+    hsv_t color;
+} indexed_color_t;
+
+bool contains_int(const int arr[], size_t size, int target) {
+    for (size_t i = 0; i < size; i++) {
         if (arr[i] == target) {
             return true;
         }
     }
     return false;
+}
+
+// Find index in indexed color array
+int find_indexed_color(const indexed_color_t arr[], size_t size, int target) {
+    for (size_t i = 0; i < size; i++) {
+        if (arr[i].index == target) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// clang-format off
+static const indexed_color_t base_indexes[] = {};
+
+static const indexed_color_t qwerty_indexes[] = {
+    {15, {HSV_YELLOW}},
+};
+
+static const indexed_color_t lower_mouse_upper_mouse_nav_indexes[] = {
+    {55, {HSV_SPRINGGREEN}},
+    {44, {HSV_YELLOW}}, {47, {HSV_YELLOW}}, {48, {HSV_YELLOW}}, {52, {HSV_YELLOW}}
+};
+
+static const indexed_color_t qwerty_mouse_indexes[] = {
+    {55, {HSV_SPRINGGREEN}},
+    {32, {HSV_RED}},
+    {24, {HSV_RED}}, {25, {HSV_RED}}, {31, {HSV_RED}},
+    {44, {HSV_YELLOW}}, {47, {HSV_YELLOW}}, {48, {HSV_YELLOW}}, {52, {HSV_YELLOW}}
+};
+
+static const indexed_color_t workspace_switch_indexes[] = {
+    {2, {HSV_RED}},
+    {8, {HSV_CORAL}}, {11, {HSV_CORAL}}, {18, {HSV_CORAL}}, {20, {HSV_CORAL}}, {28, {HSV_CORAL}},
+    {7, {HSV_CORAL}}, {12, {HSV_CORAL}}, {17, {HSV_CORAL}}, {22, {HSV_CORAL}}, {27, {HSV_CORAL}}
+};
+
+static const indexed_color_t fkeys_indexes[] = {
+    {2, {HSV_RED}},
+    {42, {HSV_ORANGE}}, {49, {HSV_ORANGE}}, {50, {HSV_ORANGE}},
+    {43, {HSV_ORANGE}}, {48, {HSV_ORANGE}}, {51, {HSV_ORANGE}},
+    {44, {HSV_ORANGE}}, {47, {HSV_ORANGE}}, {52, {HSV_ORANGE}},
+    {45, {HSV_ORANGE}}, {46, {HSV_ORANGE}}, {53, {HSV_ORANGE}}
+};
+
+static const indexed_color_t symbols_indexes[] = {
+    {2, {HSV_RED}},
+    {7, {HSV_WHITE}}, {12, {HSV_WHITE}}, {17, {HSV_WHITE}}, {22, {HSV_WHITE}}, {27, {HSV_WHITE}},
+    {52, {HSV_WHITE}}, {57, {HSV_WHITE}},
+    {18, {HSV_YELLOW}}, {21, {HSV_YELLOW}}, {28, {HSV_YELLOW}},
+    {51, {HSV_YELLOW}}, {53, {HSV_YELLOW}}
+};
+
+static const indexed_color_t numpad_indexes[] = {
+    {50, {HSV_YELLOW}},
+    {43, {HSV_MAGENTA}}, {48, {HSV_MAGENTA}}, {51, {HSV_MAGENTA}},
+    {44, {HSV_MAGENTA}}, {47, {HSV_MAGENTA}}, {52, {HSV_MAGENTA}},
+    {45, {HSV_MAGENTA}}, {46, {HSV_MAGENTA}}, {53, {HSV_MAGENTA}}
+};
+
+static const indexed_color_t upper_mouse_nav_indexes[] = {
+    {55, {HSV_SPRINGGREEN}},
+    {44, {HSV_ORANGE}}, {47, {HSV_ORANGE}}, {48, {HSV_ORANGE}}, {52, {HSV_ORANGE}}
+};
+// clang-format on
+
+// Dynamic array for runtime modifications
+#    define MAX_DYNAMIC_INDEXES 50
+static indexed_color_t dynamic_indexes[MAX_DYNAMIC_INDEXES];
+static size_t          dynamic_indexes_size = 0;
+
+// Helper function to build dynamic index list from base array
+void build_dynamic_index_list(const indexed_color_t base_array[], size_t base_size) {
+    // Reset dynamic array
+    dynamic_indexes_size = 0;
+
+    // Copy base indexes with their colors
+    for (size_t i = 0; i < base_size && dynamic_indexes_size < MAX_DYNAMIC_INDEXES; i++) {
+        dynamic_indexes[dynamic_indexes_size++] = base_array[i];
+    }
+}
+
+// Function to add or update an index with a specific color
+void add_dynamic_index(int index, hsv_t color) {
+    int pos = find_indexed_color(dynamic_indexes, dynamic_indexes_size, index);
+
+    if (pos >= 0) {
+        // Update existing index's color
+        dynamic_indexes[pos].color = color;
+    } else if (dynamic_indexes_size < MAX_DYNAMIC_INDEXES) {
+        // Add new index with color
+        dynamic_indexes[dynamic_indexes_size].index = index;
+        dynamic_indexes[dynamic_indexes_size].color = color;
+        dynamic_indexes_size++;
+    }
+}
+
+// Function to add an index with default highlight color
+void add_dynamic_index_default(int index, hsv_t default_color) {
+    add_dynamic_index(index, default_color);
+}
+
+// Function to get color for an index (returns highlight color if found, otherwise base color)
+hsv_t get_index_color(int index, hsv_t default_color) {
+    int pos = find_indexed_color(dynamic_indexes, dynamic_indexes_size, index);
+    if (pos >= 0) {
+        return dynamic_indexes[pos].color;
+    }
+    return default_color;
+}
+
+static void add_modifier_status_color(void) {
+    led_t led_state = host_keyboard_led_state();
+    if (led_state.caps_lock) {
+        add_dynamic_index(28, (hsv_t){HSV_RED});
+        add_dynamic_index(58, (hsv_t){HSV_RED});
+    }
+
+    if (keyball_get_pointer_sniping_enabled()) {
+        add_dynamic_index(54, (hsv_t){HSV_PINK});
+    }
+    if (keyball_get_pointer_dragscroll_enabled()) {
+        add_dynamic_index(55, (hsv_t){HSV_BLUE});
+    }
 }
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
@@ -378,90 +507,77 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         hsv_base = (hsv_t){HSV_OFF};
     }
 
-    int lightMode = HIGHLIGHT_DEFAULT;
-
-    int  highlightIndexesSize = 10;
-    int *highlightIndexes     = malloc(highlightIndexesSize * sizeof(int));
+    int                    lightMode            = HIGHLIGHT_DEFAULT;
+    const indexed_color_t *highlightIndexes     = NULL;
+    size_t                 highlightIndexesSize = 0;
 
     uint8_t layer = get_highest_layer(layer_state);
+
     switch (layer) {
         case LAYER_BASE:
-            lightMode = HIGHLIGHT_DEFAULT;
+            lightMode = HIGHLIGHT_PER_INDEX;
+            build_dynamic_index_list(base_indexes, sizeof(base_indexes) / sizeof(base_indexes[0]));
+            add_modifier_status_color();
+            highlightIndexes     = dynamic_indexes;
+            highlightIndexesSize = dynamic_indexes_size;
             break;
         case LAYER_QWERTY:
-            lightMode = HIGHLIGHT_DEFAULT;
+            lightMode = HIGHLIGHT_PER_INDEX;
+            build_dynamic_index_list(qwerty_indexes, sizeof(qwerty_indexes) / sizeof(qwerty_indexes[0]));
+            add_modifier_status_color();
+            highlightIndexes     = dynamic_indexes;
+            highlightIndexesSize = dynamic_indexes_size;
             break;
-        case LAYER_MOUSE:
-            lightMode     = HIGHLIGHT_PER_INDEX;
-            hsv_highlight = (hsv_t){HSV_SPRINGGREEN};
-            if (g_user_config.is_backlight_enabled) {
-                hsv_base = (hsv_t){HSV_SPRINGGREEN};
-            }
-            if (keyball_get_pointer_sniping_enabled()) {
-                hsv_highlight = (hsv_t){HSV_PINK};
-            }
-            if (keyball_get_pointer_dragscroll_enabled()) {
-                hsv_highlight = (hsv_t){HSV_GOLD};
-            }
-            int highlightIndexes2[] = {55};
-            highlightIndexesSize    = 1;
-            memcpy(highlightIndexes, highlightIndexes2, highlightIndexesSize * sizeof(int));
+        case LAYER_LOWER_MOUSE_NAV:
+            lightMode = HIGHLIGHT_PER_INDEX;
+            build_dynamic_index_list(lower_mouse_upper_mouse_nav_indexes, sizeof(lower_mouse_upper_mouse_nav_indexes) / sizeof(lower_mouse_upper_mouse_nav_indexes[0]));
+            add_modifier_status_color();
+            highlightIndexes     = dynamic_indexes;
+            highlightIndexesSize = dynamic_indexes_size;
             break;
-        case LAYER_MOUSE_QWERTY:
-            lightMode     = HIGHLIGHT_PER_INDEX;
-            hsv_highlight = (hsv_t){HSV_CHARTREUSE};
-            if (g_user_config.is_backlight_enabled) {
-                hsv_base = (hsv_t){HSV_CHARTREUSE};
-            }
-            if (keyball_get_pointer_sniping_enabled()) {
-                hsv_highlight = (hsv_t){HSV_PINK};
-            }
-            if (keyball_get_pointer_dragscroll_enabled()) {
-                hsv_highlight = (hsv_t){HSV_GOLD};
-            }
-            int highlightIndexes3[] = {31, 55};
-            highlightIndexesSize    = 2;
-            memcpy(highlightIndexes, highlightIndexes3, highlightIndexesSize * sizeof(int));
+        case LAYER_QWERTY_MOUSE:
+            lightMode = HIGHLIGHT_PER_INDEX;
+            build_dynamic_index_list(qwerty_mouse_indexes, sizeof(qwerty_mouse_indexes) / sizeof(qwerty_mouse_indexes[0]));
+            add_modifier_status_color();
+            highlightIndexes     = dynamic_indexes;
+            highlightIndexesSize = dynamic_indexes_size;
             break;
-        case LAYER_NUMROW:
-            lightMode               = HIGHLIGHT_PER_INDEX;
-            hsv_base                = (hsv_t){HSV_OFF};
-            hsv_highlight           = (hsv_t){HSV_CORAL};
-            int highlightIndexes4[] = {7, 12, 17, 22, 27, 39, 44, 47, 52, 57};
-            highlightIndexesSize    = 10;
-            memcpy(highlightIndexes, highlightIndexes4, highlightIndexesSize * sizeof(int));
+        case LAYER_WORKSPACE_SWITCH:
+            lightMode = HIGHLIGHT_PER_INDEX;
+            hsv_base  = (hsv_t){HSV_OFF};
+            build_dynamic_index_list(workspace_switch_indexes, sizeof(workspace_switch_indexes) / sizeof(workspace_switch_indexes[0]));
+            highlightIndexes     = dynamic_indexes;
+            highlightIndexesSize = dynamic_indexes_size;
             break;
         case LAYER_F_KEYS:
-            lightMode               = HIGHLIGHT_PER_INDEX;
-            hsv_base                = (hsv_t){HSV_OFF};
-            hsv_highlight           = (hsv_t){HSV_ORANGE};
-            int highlightIndexes5[] = {7, 27, 39, 57, 43, 48};
-            highlightIndexesSize    = 6;
-            memcpy(highlightIndexes, highlightIndexes5, highlightIndexesSize * sizeof(int));
+            lightMode = HIGHLIGHT_PER_INDEX;
+            hsv_base  = (hsv_t){HSV_OFF};
+            build_dynamic_index_list(fkeys_indexes, sizeof(fkeys_indexes) / sizeof(fkeys_indexes[0]));
+            highlightIndexes     = dynamic_indexes;
+            highlightIndexesSize = dynamic_indexes_size;
             break;
         case LAYER_SYMBOLS:
-            lightMode               = HIGHLIGHT_PER_INDEX;
-            hsv_base                = (hsv_t){HSV_OFF};
-            hsv_highlight           = (hsv_t){HSV_BLUE};
-            int highlightIndexes6[] = {21, 42, 49};
-            highlightIndexesSize    = 3;
-            memcpy(highlightIndexes, highlightIndexes6, highlightIndexesSize * sizeof(int));
+            lightMode = HIGHLIGHT_PER_INDEX;
+            hsv_base  = (hsv_t){HSV_OFF};
+            build_dynamic_index_list(symbols_indexes, sizeof(symbols_indexes) / sizeof(symbols_indexes[0]));
+            highlightIndexes     = dynamic_indexes;
+            highlightIndexesSize = dynamic_indexes_size;
             break;
         case LAYER_NUMPAD:
-            lightMode               = HIGHLIGHT_PER_INDEX;
-            hsv_base                = (hsv_t){HSV_OFF};
-            hsv_highlight           = (hsv_t){HSV_MAGENTA};
-            int highlightIndexes7[] = {43, 48, 51, 44, 47, 52, 45, 46, 53};
-            highlightIndexesSize    = 9;
-            memcpy(highlightIndexes, highlightIndexes7, highlightIndexesSize * sizeof(int));
+            lightMode = HIGHLIGHT_PER_INDEX;
+            hsv_base  = (hsv_t){HSV_OFF};
+            build_dynamic_index_list(numpad_indexes, sizeof(numpad_indexes) / sizeof(numpad_indexes[0]));
+            add_modifier_status_color();
+            highlightIndexes     = dynamic_indexes;
+            highlightIndexesSize = dynamic_indexes_size;
             break;
-        case LAYER_NAV:
-            lightMode               = HIGHLIGHT_PER_INDEX;
-            hsv_base                = (hsv_t){HSV_OFF};
-            hsv_highlight           = (hsv_t){HSV_YELLOW};
-            int highlightIndexes8[] = {44, 47, 52, 57};
-            highlightIndexesSize    = 4;
-            memcpy(highlightIndexes, highlightIndexes8, highlightIndexesSize * sizeof(int));
+        case LAYER_UPPER_MOUSE_NAV:
+            lightMode = HIGHLIGHT_PER_INDEX;
+            hsv_base  = (hsv_t){HSV_OFF};
+            build_dynamic_index_list(upper_mouse_nav_indexes, sizeof(upper_mouse_nav_indexes) / sizeof(upper_mouse_nav_indexes[0]));
+            add_modifier_status_color();
+            highlightIndexes     = dynamic_indexes;
+            highlightIndexesSize = dynamic_indexes_size;
             break;
         case LAYER_SETTINGS:
             lightMode     = HIGHLIGHT_WHERE_THERE_ARE_KEYS;
@@ -492,8 +608,11 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         case HIGHLIGHT_PER_INDEX:
             for (uint8_t i = led_min; i < led_max; i++) {
                 rgb_t rgb = rgb_base;
-                if (contains_int(highlightIndexes, highlightIndexesSize, i)) {
-                    rgb = rgb_highlight;
+                int   pos = find_indexed_color(highlightIndexes, highlightIndexesSize, i);
+                if (pos >= 0) {
+                    hsv_t temp = highlightIndexes[pos].color;
+                    temp.v     = rgb_matrix_get_val();
+                    rgb        = hsv_to_rgb(temp);
                 }
                 rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
             }
@@ -516,8 +635,6 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
         default:
             break;
     }
-
-    free(highlightIndexes);
 
     return false;
 }
@@ -556,20 +673,20 @@ static void slave_data(void) {
             render_space();
             oled_write_ln("Qwrty", false);
             break;
-        case LAYER_MOUSE:
+        case LAYER_LOWER_MOUSE_NAV:
             oled_write("  2  ", false);
             render_space();
-            oled_write_ln("Mouse", false);
+            oled_write_ln("LmNav", false);
             break;
-        case LAYER_MOUSE_QWERTY:
+        case LAYER_QWERTY_MOUSE:
             oled_write("  3  ", false);
             render_space();
             oled_write_ln("MiceQ", false);
             break;
-        case LAYER_NUMROW:
+        case LAYER_WORKSPACE_SWITCH:
             oled_write("  4  ", false);
             render_space();
-            oled_write_ln("NumRw", false);
+            oled_write_ln(" WSS ", false);
             break;
         case LAYER_F_KEYS:
             oled_write("  5  ", false);
@@ -586,10 +703,10 @@ static void slave_data(void) {
             render_space();
             oled_write_ln("NumPD", false);
             break;
-        case LAYER_NAV:
+        case LAYER_UPPER_MOUSE_NAV:
             oled_write("  8  ", false);
             render_space();
-            oled_write_ln(" Nav ", false);
+            oled_write_ln("UmNav", false);
             break;
         case LAYER_SETTINGS:
             oled_write("  9  ", false);
