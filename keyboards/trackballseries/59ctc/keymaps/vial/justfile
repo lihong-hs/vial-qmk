@@ -1,0 +1,9 @@
+set shell := ["bash", "-c"]
+set dotenv-load := true
+
+# Default recipe lists available commands
+default:
+    @just --list
+
+compile:
+    qmk compile -kb trackballseries/59ctc/v2/splinky -km vial
