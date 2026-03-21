@@ -294,8 +294,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // clang-format on
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    led_t led_state        = host_keyboard_led_state();
-    bool  g_num_lock_state = led_state.num_lock;
+    led_t led_state      = host_keyboard_led_state();
+    bool  num_lock_state = led_state.num_lock;
 
     switch (get_highest_layer(state)) {
         case LAYER_BASE:
@@ -313,7 +313,7 @@ layer_state_t layer_state_set_user(layer_state_t state) {
         case LAYER_SYMBOLS:
             break;
         case LAYER_NUMPAD: // turn on numlock, if it isn't already on.
-            if (!g_num_lock_state) {
+            if (!num_lock_state) {
                 tap_code(KC_NUM_LOCK);
             }
             break;
@@ -421,13 +421,12 @@ static const indexed_color_t fkeys_indexes[] = {
 static const indexed_color_t symbols_indexes[] = {
     {2, {HSV_RED}},
     {7, {HSV_WHITE}}, {12, {HSV_WHITE}}, {17, {HSV_WHITE}}, {22, {HSV_WHITE}}, {27, {HSV_WHITE}},
-    {52, {HSV_WHITE}}, {57, {HSV_WHITE}},
+    {52, {HSV_WHITE}}, {57, {HSV_WHITE}}, {53, {HSV_YELLOW}},
     {18, {HSV_YELLOW}}, {21, {HSV_YELLOW}}, {28, {HSV_YELLOW}},
-    {51, {HSV_YELLOW}}, {53, {HSV_YELLOW}}
+    {51, {HSV_YELLOW}}
 };
 
 static const indexed_color_t numpad_indexes[] = {
-    {50, {HSV_YELLOW}},
     {43, {HSV_MAGENTA}}, {48, {HSV_MAGENTA}}, {51, {HSV_MAGENTA}},
     {44, {HSV_MAGENTA}}, {47, {HSV_MAGENTA}}, {52, {HSV_MAGENTA}},
     {45, {HSV_MAGENTA}}, {46, {HSV_MAGENTA}}, {53, {HSV_MAGENTA}}
@@ -568,6 +567,10 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             hsv_base  = (hsv_t){HSV_OFF};
             build_dynamic_index_list(numpad_indexes, sizeof(numpad_indexes) / sizeof(numpad_indexes[0]));
             add_modifier_status_color();
+
+            led_t led_state = host_keyboard_led_state();
+            add_dynamic_index(50, led_state.num_lock ? (hsv_t){HSV_MAGENTA} : (hsv_t){HSV_YELLOW});
+
             highlightIndexes     = dynamic_indexes;
             highlightIndexesSize = dynamic_indexes_size;
             break;
